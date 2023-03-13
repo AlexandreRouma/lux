@@ -4,34 +4,34 @@
 #include "point.h"
 #include "color.h"
 #include "draw_list.h"
+#include "widget.h"
 
 namespace lux {
-    class Window {
+    class Window : public Widget{
     public:
         Window(const Size& size, const std::string& title, const Point& position = Point(-1, -1));
-        ~Window();
+        virtual ~Window();
 
-        void minimize();
-        void maximize();
-        void close();
-
-        const Size& getSize();
+        // TODO: Have backend call setContainerSize and let Widget class handle setSize default (or not, duno)
         void setSize(const Size& size, bool notifyBackend = true);
 
         const std::string getTitle();
         const Point& getPosition();
         const Color& getBackgroundColor();
+        
+        void setRootWidget(const std::shared_ptr<Widget>& rootWidget);
 
-        bool redrawRequired();
-        const std::shared_ptr<DrawList>& getDrawList();
-
-        void gainFocus();
-        void loseFocus();
-        void mouseEnter();
-        void mouseLeave();
-        void mouseDown(const Point& mpos);
-        void mouseUp(const Point& mpos);
-        void mouseMove(const Point& mpos);
+        // Events
+        virtual void minimize();
+        virtual void maximize();
+        virtual void close();
+        virtual void gainFocus();
+        virtual void loseFocus();
+        virtual void mouseEnter();
+        virtual void mouseLeave();
+        virtual void mouseDown(const Point& mpos);
+        virtual void mouseUp(const Point& mpos);
+        virtual void mouseMove(const Point& mpos);
 
     private:
         void draw();
@@ -39,7 +39,6 @@ namespace lux {
 
         bool focused = false;
         bool open = true;
-        bool redraw = true;
 
         Point minimizeP1;
         Point minimizeP2;
@@ -59,10 +58,10 @@ namespace lux {
         bool mouseDownInTitle = false;
         Point mouseTitlePos;
 
-        Size size;
         std::string title;
         Point position;
         Color background = Color(0.1, 0.1, 0.1);
-        std::shared_ptr<DrawList> drawList;
+
+        std::shared_ptr<Widget> rootWidget;
     };
 }

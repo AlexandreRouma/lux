@@ -17,6 +17,7 @@ namespace lux {
         void draw(const std::shared_ptr<DrawList>& drawList, const Point& position = Point(0, 0));
 
     private:
+        void drawFullList(const std::shared_ptr<DrawList>& drawList, const Point& position, const Size& parentArea);
         void drawStep(const DrawStep& step, const Point& position);
         void updateProjMatrix();
 

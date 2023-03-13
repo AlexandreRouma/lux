@@ -3,11 +3,10 @@
 #include "flog.h"
 
 namespace lux {
-    Window::Window(const Size& size, const std::string& title, const Point& position) {
+    Window::Window(const Size& size, const std::string& title, const Point& position) : Widget(NULL) {
         this->size = size;
         this->title = title;
         this->position = position;
-        drawList = std::make_shared<DrawList>();
         updateButtonPositions();
         backend::registerWindow(this);
     }
@@ -33,12 +32,8 @@ namespace lux {
         backend::unregisterWindow(this);
     }
 
-    const Size& Window::getSize() {
-        return size;
-    }
-
     void Window::setSize(const Size& size, bool notifyBackend) {
-        redraw = true;
+        markForRedraw();
         this->size = size;
         updateButtonPositions();
         if (notifyBackend) { backend::resizeWindow(this, size); }
@@ -48,26 +43,20 @@ namespace lux {
     const Point& Window::getPosition() { return position; }
     const Color& Window::getBackgroundColor() { return background; }
 
-    bool Window::redrawRequired() {
-        return redraw;
-    }
-
-    const std::shared_ptr<DrawList>& Window::getDrawList() {
-        if (redraw) {
-            redraw = false;
-            draw();
-        }
-        return drawList;
+    void Window::setRootWidget(const std::shared_ptr<Widget>& rootWidget) {
+        this->rootWidget = rootWidget;
+        // TODO: Could be negative
+        rootWidget->setContainerSize(size - Size(10, 10 + 30 + 1/*TODO: Find why +1?*/));
     }
 
     void Window::gainFocus() {
         focused = true;
-        redraw = true;
+        markForRedraw();
     }
 
     void Window::loseFocus() {
         focused = false;
-        redraw = true;
+        markForRedraw();
     }
 
     void Window::mouseEnter() {
@@ -75,8 +64,8 @@ namespace lux {
     }
 
     void Window::mouseLeave() {
-        if (minimizeHovered || maximizeHovered || closeHovered) { redraw = true; }
-        if (minimizeClicked || maximizeClicked || closeClicked) { redraw = true; }
+        if (minimizeHovered || maximizeHovered || closeHovered) { markForRedraw(); }
+        if (minimizeClicked || maximizeClicked || closeClicked) { markForRedraw(); }
         minimizeHovered = false;
         minimizeClicked = false;
         maximizeHovered = false;
@@ -90,9 +79,9 @@ namespace lux {
         bool _minimizeClicked = minimizeHovered;
         bool _maximizeClicked = maximizeHovered;
         bool _closeClicked = closeHovered;
-        if (minimizeClicked != _minimizeClicked) { redraw = true; }
-        if (maximizeClicked != _maximizeClicked) { redraw = true; }
-        if (closeClicked != _closeClicked) { redraw = true; }
+        if (minimizeClicked != _minimizeClicked) { markForRedraw(); }
+        if (maximizeClicked != _maximizeClicked) { markForRedraw(); }
+        if (closeClicked != _closeClicked) { markForRedraw(); }
         minimizeClicked = _minimizeClicked;
         maximizeClicked = _maximizeClicked;
         closeClicked = _closeClicked;
@@ -112,7 +101,7 @@ namespace lux {
 
         mouseDownInTitle = false;
 
-        if (minimizeClicked || maximizeClicked || closeClicked) { redraw = true; }
+        if (minimizeClicked || maximizeClicked || closeClicked) { markForRedraw(); }
         minimizeClicked = false;
         maximizeClicked = false;
         closeClicked = false;
@@ -130,9 +119,9 @@ namespace lux {
         bool _minimizeHovered = (mpos.x >= minimizeP1.x && mpos.y >= minimizeP1.y && mpos.x < minimizeP2.x && mpos.y < minimizeP2.y);
         bool _maximizeHovered = (mpos.x >= maximizeP1.x && mpos.y >= maximizeP1.y && mpos.x < maximizeP2.x && mpos.y < maximizeP2.y);
         bool _closeHovered = (mpos.x >= closeP1.x && mpos.y >= closeP1.y && mpos.x < closeP2.x && mpos.y < closeP2.y);
-        if (minimizeHovered != _minimizeHovered) { redraw = true; }
-        if (maximizeHovered != _maximizeHovered) { redraw = true; }
-        if (closeHovered != _closeHovered) { redraw = true; }
+        if (minimizeHovered != _minimizeHovered) { markForRedraw(); }
+        if (maximizeHovered != _maximizeHovered) { markForRedraw(); }
+        if (closeHovered != _closeHovered) { markForRedraw(); }
         minimizeHovered = _minimizeHovered;
         maximizeHovered = _maximizeHovered;
         closeHovered = _closeHovered;
@@ -142,6 +131,7 @@ namespace lux {
 
     void Window::draw() {
         drawList->clear();
+        drawList->setDrawArea(size);
 
         Color textColor;
         Color barColor;
@@ -183,6 +173,9 @@ namespace lux {
         drawList->drawRect(lux::Point(maxBtnX, 9), lux::Point(maxBtnX+9, 18), textColor);
         drawList->drawLine(lux::Point(clsBtnX, 9), lux::Point(clsBtnX+9, 18), textColor);
         drawList->drawLine(lux::Point(clsBtnX, 18), lux::Point(clsBtnX+9, 9), textColor);
+
+        // Draw widget
+        if (rootWidget) { drawList->drawList(Point(5, 31 + 5), rootWidget->getDrawList()); }
     }
 
     void Window::updateButtonPositions() {

@@ -15,6 +15,14 @@ namespace lux {
         steps.clear();
     }
 
+    void DrawList::setDrawArea(const Size& drawArea) {
+        this->drawArea = drawArea;
+    }
+
+    const Size& DrawList::getDrawArea() {
+        return drawArea;
+    }
+
     void DrawList::drawLine(const Point& p1, const Point& p2, const Color& color) {
         DrawStep step;
         step.op = DRAW_OP_DRAW_LINE;

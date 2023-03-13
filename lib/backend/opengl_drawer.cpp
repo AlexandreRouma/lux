@@ -53,13 +53,27 @@ namespace lux {
     void OpenGLDrawer::draw(const std::shared_ptr<DrawList>& drawList, const Point& position) {
         // Define viewport and bind VAO
         glViewport(0, 0, size.x, size.y);
+        glEnable(GL_SCISSOR_TEST);
         glBindVertexArray(VAO);
 
         // Load shader
         shader->use();
         glUniformMatrix4fv(projMatUniform, 1, GL_FALSE, glm::value_ptr(projMat));
 
+        // Draw the list
+        drawFullList(drawList, position, size);
+    }
+
+    void OpenGLDrawer::drawFullList(const std::shared_ptr<DrawList>& drawList, const Point& position, const Size& parentArea) {
+        auto remainingArea = parentArea - position;
+        auto childArea = drawList->getDrawArea();
+        auto drawArea = Size(std::min<int>(childArea.x, remainingArea.x), std::min<int>(childArea.y, remainingArea.y));
+        glScissor(position.x, size.y - position.y - drawArea.y, drawArea.x, drawArea.y);
         for (const auto& step : drawList->getSteps()) {
+            if (step.op == DRAW_OP_DRAW_LIST) {
+                drawFullList(step.list, position + step.p, drawArea);
+                continue;
+            }
             drawStep(step, position);
         }
     }

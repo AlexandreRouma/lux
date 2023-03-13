@@ -32,8 +32,13 @@ namespace lux {
         DrawList();
         DrawList(const DrawList& other);
 
+        // TODO: Draw area of recursive lists must be limited to not go outside the boudries
+        // TODO: Gotta find a way to get proper layering.
+
         bool empty();
         void clear();
+        void setDrawArea(const Size& drawArea);
+        const Size& getDrawArea();
 
         void drawLine(const Point& p1, const Point& p2, const Color& color);
         void drawRect(const Point& p1, const Point& p2, const Color& color);
@@ -43,6 +48,7 @@ namespace lux {
         const std::vector<DrawStep>& getSteps() const;
 
     private:
+        Size drawArea = Size(0, 0);
         std::vector<DrawStep> steps;
     };
 }
