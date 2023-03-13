@@ -40,6 +40,10 @@ namespace lux {
     const Point& Window::getPosition() { return position; }
     const Color& Window::getBackgroundColor() { return background; }
 
+    bool Window::redrawRequired() {
+        return redraw;
+    }
+
     const std::shared_ptr<DrawList>& Window::getDrawList() {
         if (redraw) {
             redraw = false;
@@ -48,8 +52,18 @@ namespace lux {
         return drawList;
     }
 
+    void Window::gainFocus() {
+        focused = true;
+        redraw = true;
+    }
+
+    void Window::loseFocus() {
+        focused = false;
+        redraw = true;
+    }
+
     void Window::mouseEnter() {
-        flog::info("[{}] Mouse enter", title);
+        //flog::info("[{}] Mouse enter", title);
     }
 
     void Window::mouseLeave() {
@@ -61,7 +75,7 @@ namespace lux {
         maximizeClicked = false;
         closeHovered = false;
         closeClicked = false;
-        flog::info("[{}] Mouse leave", title);
+        //flog::info("[{}] Mouse leave", title);
     }
 
     void Window::mouseDown(const Point& mpos) {
@@ -80,7 +94,7 @@ namespace lux {
             mouseTitlePos = mpos;
         }
 
-        flog::info("[{}] Mouse down", title);
+        //flog::info("[{}] Mouse down", title);
     }
 
     void Window::mouseUp(const Point& mpos) {
@@ -101,7 +115,7 @@ namespace lux {
         maximizeClicked = false;
         closeClicked = false;
         
-        flog::info("[{}] Mouse up", title);
+        //flog::info("[{}] Mouse up", title);
     }
 
     void Window::mouseMove(const Point& mpos) {
@@ -109,7 +123,6 @@ namespace lux {
             auto delta = mpos - mouseTitlePos;
             position = position + delta;
             backend::moveWindow(this, position);
-            flog::info("Moving window!");
         }
 
         bool _minimizeHovered = (mpos.x >= minimizeP1.x && mpos.y >= minimizeP1.y && mpos.x < minimizeP2.x && mpos.y < minimizeP2.y);
@@ -122,12 +135,24 @@ namespace lux {
         maximizeHovered = _maximizeHovered;
         closeHovered = _closeHovered;
 
-        flog::info("[{}] Mouse move ({}, {})", title, mpos.x, mpos.y);
+        //flog::info("[{}] Mouse move ({}, {})", title, mpos.x, mpos.y);
     }
 
     void Window::draw() {
         drawList->clear();
-        drawList->fillRect(lux::Point(0, 0), lux::Point(size.x - 1, 30), lux::Color(60.0/255.0, 60.0/255.0, 60.0/255.0));
+
+        Color textColor;
+        Color barColor;
+        if (focused) {
+            textColor = Color(1.0, 1.0, 1.0);
+            barColor = lux::Color(60.0/255.0, 60.0/255.0, 60.0/255.0);
+        }
+        else {
+            textColor = Color(0.8, 0.8, 0.8);
+            barColor = lux::Color(50.0/255.0, 50.0/255.0, 51.0/255.0);
+        }
+
+        drawList->fillRect(lux::Point(0, 0), lux::Point(size.x - 1, 30), barColor);
 
         int minBtnX = size.x - 120;
         int maxBtnX = size.x - 74;
@@ -152,10 +177,10 @@ namespace lux {
             drawList->fillRect(closeP1, closeP2, lux::Color(1.0, 0.0, 0.0));
         }
 
-        drawList->drawLine(lux::Point(minBtnX, 14), lux::Point(minBtnX+9, 14), lux::Color(1.0, 1.0, 1.0));
-        drawList->drawRect(lux::Point(maxBtnX, 9), lux::Point(maxBtnX+9, 18), lux::Color(1.0, 1.0, 1.0));
-        drawList->drawLine(lux::Point(clsBtnX, 9), lux::Point(clsBtnX+9, 18), lux::Color(1.0, 1.0, 1.0));
-        drawList->drawLine(lux::Point(clsBtnX, 18), lux::Point(clsBtnX+9, 9), lux::Color(1.0, 1.0, 1.0));
+        drawList->drawLine(lux::Point(minBtnX, 14), lux::Point(minBtnX+9, 14), textColor);
+        drawList->drawRect(lux::Point(maxBtnX, 9), lux::Point(maxBtnX+9, 18), textColor);
+        drawList->drawLine(lux::Point(clsBtnX, 9), lux::Point(clsBtnX+9, 18), textColor);
+        drawList->drawLine(lux::Point(clsBtnX, 18), lux::Point(clsBtnX+9, 9), textColor);
     }
 
     void Window::updateButtonPositions() {

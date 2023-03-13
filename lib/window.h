@@ -20,8 +20,11 @@ namespace lux {
         const Point& getPosition();
         const Color& getBackgroundColor();
 
+        bool redrawRequired();
         const std::shared_ptr<DrawList>& getDrawList();
 
+        void gainFocus();
+        void loseFocus();
         void mouseEnter();
         void mouseLeave();
         void mouseDown(const Point& mpos);
@@ -32,6 +35,7 @@ namespace lux {
         void draw();
         void updateButtonPositions();
 
+        bool focused = false;
         bool open = true;
         bool redraw = true;
 

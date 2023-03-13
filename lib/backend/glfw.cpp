@@ -126,8 +126,19 @@ namespace lux::backend {
                     win.drawer->setSize(size);
                 }
 
+                // Check focus
+                bool focused = glfwGetWindowAttrib(win.glfwWin, GLFW_FOCUSED);
+                if (!win.focused && focused) {
+                    win.focused = true;
+                    win.luxWin->gainFocus();
+                }
+                else if (win.focused && !focused) {
+                    win.focused = false;
+                    win.luxWin->loseFocus();
+                }
+
                 // Detect mouse enter and mouse leave
-                // TODO: Has to be focused as well
+                // TODO: Has to be only if the region of the window is visible, same thing for click
                 bool mouseIn = (mpos.x >= 0 && mpos.y >= 0 && mpos.x < size.x && mpos.y < size.y);
                 if (!win.mouseIn && mouseIn) {
                     win.mouseIn = true;
@@ -158,12 +169,16 @@ namespace lux::backend {
 
             // Draw each window
             for (auto& win : windows) {
+                // Check if a redraw is actually needed
+                //if (!win.luxWin->redrawRequired()) { continue; }
+                
                 // Bind OpenGL context
                 glfwMakeContextCurrent(win.glfwWin);
 
                 // Draw
                 win.drawer->clear();
                 win.drawer->draw(win.luxWin->getDrawList());
+                win.swapRequired = true;
             }
 
             // VSync
@@ -171,6 +186,8 @@ namespace lux::backend {
 
             // Swap buffers for each window
             for (auto& win : windows) {
+                if (!win.swapRequired) { continue; }
+                win.swapRequired = false;
                 glfwSwapBuffers(win.glfwWin);
             }
 

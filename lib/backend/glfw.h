@@ -10,7 +10,9 @@ namespace lux::backend {
         GLFWwindow* glfwWin;
         std::shared_ptr<OpenGLDrawer> drawer;
         Point mpos = Point(-1, -1);
+        bool focused = false;
         bool mouseIn = false;
         bool mouseDown = false;
+        bool swapRequired = false;
     };
 };
