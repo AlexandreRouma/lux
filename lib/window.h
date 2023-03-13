@@ -11,6 +11,8 @@ namespace lux {
         Window(const Size& size, const std::string& title, const Point& position = Point(-1, -1));
         ~Window();
 
+        void minimize();
+        void maximize();
         void close();
 
         const Size& getSize();

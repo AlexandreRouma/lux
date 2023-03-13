@@ -100,6 +100,26 @@ namespace lux::backend {
         glfwSetWindowPos(win.glfwWin, position.x, position.y);
     }
 
+    void minimizeWindow(Window* window) {
+        // Get entry
+        auto it = std::find_if(windows.begin(), windows.end(), [window](BackendWindow& bwin) { return bwin.luxWin == window; });
+        if (it == windows.end()) { return; }
+        auto win = *it;
+
+        // Minimize
+        glfwIconifyWindow(win.glfwWin);
+    }
+
+    void maximizeWindow(Window* window) {
+        // Get entry
+        auto it = std::find_if(windows.begin(), windows.end(), [window](BackendWindow& bwin) { return bwin.luxWin == window; });
+        if (it == windows.end()) { return; }
+        auto win = *it;
+
+        // Minimize
+        glfwMaximizeWindow(win.glfwWin);
+    }
+
     void run() {
         while (!windows.empty()) {
             // Poll events

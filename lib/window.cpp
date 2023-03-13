@@ -16,6 +16,14 @@ namespace lux {
         close();
     }
 
+    void Window::minimize() {
+        backend::minimizeWindow(this);
+    }
+
+    void Window::maximize() {
+        //backend::maximizeWindow(this);
+    }
+
     void Window::close() {
         // Only attempt to close if window is open
         if (!open) { return; }
@@ -98,15 +106,9 @@ namespace lux {
     }
 
     void Window::mouseUp(const Point& mpos) {
-        if (minimizeClicked) {
-
-        }
-        else if (maximizeClicked) {
-
-        }
-        else if (closeClicked) {
-            close();
-        }
+        if (minimizeClicked) { minimize(); }
+        else if (maximizeClicked) {  maximize(); }
+        else if (closeClicked) { close(); }
 
         mouseDownInTitle = false;
 
