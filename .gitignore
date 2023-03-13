@@ -1,0 +1,9 @@
+build/
+.vscode/
+.vs/
+.idea/
+*.old
+*.dll
+*.exe
+*.zip
+*.wav
