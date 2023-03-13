@@ -1,6 +1,7 @@
 #include "glfw.h"
 #include <stdexcept>
 #include <vector>
+#include <algorithm>
 #include "flog.h"
 
 namespace lux::backend {
