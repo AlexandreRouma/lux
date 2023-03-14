@@ -3,6 +3,11 @@
 #include "draw_list.h"
 
 namespace lux {
+    enum SizeMode {
+        FIT_PARENT  = -1,
+        FIT_CONTENT = 0
+    };
+
     class Widget {
     public:
         Widget(Widget* parent);
