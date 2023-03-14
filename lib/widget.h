@@ -11,6 +11,7 @@ namespace lux {
         virtual void setContainerSize(const Size& containerSize);
         const Size& getSize();
 
+        // TODO: Optimize it to avoid multiple recursive call when already marked for redraw
         void markForRedraw();
         bool redrawRequired();
         const std::shared_ptr<DrawList>& getDrawList();

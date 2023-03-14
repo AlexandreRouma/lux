@@ -132,19 +132,27 @@ namespace lux::backend {
                     win.luxWin->close();
                 }
 
-                // Get mouse position
-                double mx, my;
-                glfwGetCursorPos(win.glfwWin, &mx, &my);
-                Point mpos(round(mx), round(my));
+                // Check if window should be moved
+                Point gpos;
+                const Point& pos = win.luxWin->getPosition();
+                glfwGetWindowPos(win.glfwWin, &gpos.x, &gpos.y);
+                if (pos != gpos) {
+                    win.luxWin->setPosition(gpos, false);
+                }
 
                 // Check if the window should be resized
                 Size gsize;
                 const Size& size = win.luxWin->getSize();
                 glfwGetWindowSize(win.glfwWin, &gsize.x, &gsize.y);
                 if (gsize.x > 0 && gsize.y > 0 && size != gsize) {
-                    win.luxWin->setSize(gsize, false);
-                    win.drawer->setSize(size);
+                    win.luxWin->setContainerSize(gsize);
+                    win.drawer->setSize(gsize);
                 }
+
+                // Get mouse position
+                double mx, my;
+                glfwGetCursorPos(win.glfwWin, &mx, &my);
+                Point mpos(round(mx), round(my));
 
                 // Check focus
                 bool focused = glfwGetWindowAttrib(win.glfwWin, GLFW_FOCUSED);
@@ -196,8 +204,7 @@ namespace lux::backend {
                 glfwMakeContextCurrent(win.glfwWin);
 
                 // Draw
-                win.drawer->clear();
-                win.drawer->draw(win.luxWin->getDrawList());
+                win.drawer->draw(win.luxWin->getDrawList(), win.luxWin->getBackgroundColor());
                 win.swapRequired = true;
             }
 

@@ -45,15 +45,15 @@ namespace lux {
         updateProjMatrix();
     }
 
-    void OpenGLDrawer::clear(const Color& clearColor) {
+    void OpenGLDrawer::draw(const std::shared_ptr<DrawList>& drawList, const Color& clearColor, const Point& position) {
+        // Define viewport and clear
+        glEnable(GL_SCISSOR_TEST); // TODO: Re-enable when actually calculated properly
+        glViewport(0, 0, size.x, size.y);
+        glScissor(0, 0, size.x, size.y);
         glClearColor(clearColor.r, clearColor.g, clearColor.b, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
 
-    void OpenGLDrawer::draw(const std::shared_ptr<DrawList>& drawList, const Point& position) {
-        // Define viewport and bind VAO
-        glViewport(0, 0, size.x, size.y);
-        glEnable(GL_SCISSOR_TEST);
+        // Bind VAO
         glBindVertexArray(VAO);
 
         // Load shader
@@ -65,6 +65,7 @@ namespace lux {
     }
 
     void OpenGLDrawer::drawFullList(const std::shared_ptr<DrawList>& drawList, const Point& position, const Size& parentArea) {
+        // TODO: This doesn't work correctly
         auto remainingArea = parentArea - position;
         auto childArea = drawList->getDrawArea();
         auto drawArea = Size(std::min<int>(childArea.x, remainingArea.x), std::min<int>(childArea.y, remainingArea.y));

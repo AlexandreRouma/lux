@@ -13,8 +13,7 @@ namespace lux {
 
         void setSize(const Size& size);
 
-        void clear(const Color& clearColor = Color(0.1, 0.1, 0.1));
-        void draw(const std::shared_ptr<DrawList>& drawList, const Point& position = Point(0, 0));
+        void draw(const std::shared_ptr<DrawList>& drawList, const Color& clearColor, const Point& position = Point(0, 0));
 
     private:
         void drawFullList(const std::shared_ptr<DrawList>& drawList, const Point& position, const Size& parentArea);

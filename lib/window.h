@@ -12,19 +12,25 @@ namespace lux {
         Window(const Size& size, const std::string& title, const Point& position = Point(-1, -1));
         virtual ~Window();
 
-        // TODO: Have backend call setContainerSize and let Widget class handle setSize default (or not, duno)
-        void setSize(const Size& size, bool notifyBackend = true);
+        virtual void show();
+        virtual void close();
+        virtual void minimize();
+        virtual void maximize();
 
-        const std::string getTitle();
+        void setContainerSize(const Size& containerSize);
+
+        const std::string& getTitle();
+        void setTitle(const std::string& title);
+
         const Point& getPosition();
+        void setPosition(const Point& position, bool updateBackend = true);
+
         const Color& getBackgroundColor();
+        void setBackgroundColor(const Color& backgroundColor);
         
         void setRootWidget(const std::shared_ptr<Widget>& rootWidget);
 
         // Events
-        virtual void minimize();
-        virtual void maximize();
-        virtual void close();
         virtual void gainFocus();
         virtual void loseFocus();
         virtual void mouseEnter();
@@ -38,7 +44,7 @@ namespace lux {
         void updateButtonPositions();
 
         bool focused = false;
-        bool open = true;
+        bool open = false;
 
         Point minimizeP1;
         Point minimizeP2;

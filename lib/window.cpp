@@ -8,19 +8,18 @@ namespace lux {
         this->title = title;
         this->position = position;
         updateButtonPositions();
-        backend::registerWindow(this);
     }
 
     Window::~Window() {
         close();
     }
 
-    void Window::minimize() {
-        backend::minimizeWindow(this);
-    }
+    void Window::show() {
+        // Only attempt to show if window is closed
+        if (open) { return; }
+        open = true;
 
-    void Window::maximize() {
-        //backend::maximizeWindow(this);
+        backend::registerWindow(this);
     }
 
     void Window::close() {
@@ -32,16 +31,43 @@ namespace lux {
         backend::unregisterWindow(this);
     }
 
-    void Window::setSize(const Size& size, bool notifyBackend) {
-        markForRedraw();
-        this->size = size;
-        updateButtonPositions();
-        if (notifyBackend) { backend::resizeWindow(this, size); }
+    void Window::minimize() {
+        backend::minimizeWindow(this);
     }
 
-    const std::string Window::getTitle() { return title; }
-    const Point& Window::getPosition() { return position; }
-    const Color& Window::getBackgroundColor() { return background; }
+    void Window::maximize() {
+        //backend::maximizeWindow(this);
+    }
+
+    void Window::setContainerSize(const Size& containerSize) {
+        Widget::setContainerSize(containerSize);
+        this->size = containerSize;
+        updateButtonPositions();
+        rootWidget->setContainerSize(size - Size(10, 10 + 30 + 1/*TODO: Find why +1?*/));
+        markForRedraw();
+    }
+
+    const std::string& Window::getTitle() {
+        return title;
+    }
+
+    void Window::setTitle(const std::string& title) {
+        this->title = title;
+        markForRedraw();
+    }
+
+    const Point& Window::getPosition() {
+        return position;
+    }
+
+    void Window::setPosition(const Point& position, bool updateBackend) {
+        this->position = position;
+        if (updateBackend) { backend::moveWindow(this, position); }
+    }
+
+    const Color& Window::getBackgroundColor() {
+        return background;
+    }
 
     void Window::setRootWidget(const std::shared_ptr<Widget>& rootWidget) {
         this->rootWidget = rootWidget;
@@ -112,8 +138,7 @@ namespace lux {
     void Window::mouseMove(const Point& mpos) {
         if (mouseDownInTitle) {
             auto delta = mpos - mouseTitlePos;
-            position = position + delta;
-            backend::moveWindow(this, position);
+            setPosition(position + delta);
         }
 
         bool _minimizeHovered = (mpos.x >= minimizeP1.x && mpos.y >= minimizeP1.y && mpos.x < minimizeP2.x && mpos.y < minimizeP2.y);

@@ -9,8 +9,8 @@ namespace lux {
 
     void Button::setContainerSize(const Size& containerSize) {
         Widget::setContainerSize(containerSize);
-        //size.x = containerSize.x;
-        //markForRedraw();
+        size.x = containerSize.x;
+        markForRedraw();
     }
 
     void Button::draw() {
@@ -19,8 +19,6 @@ namespace lux {
 
         auto barColor = lux::Color(60.0/255.0, 60.0/255.0, 60.0/255.0);
         auto borderColor = lux::Color(30.0/255.0, 30.0/255.0, 30.0/255.0);
-
-        flog::warn("{},{}", size.x, size.y);
 
         drawList->fillRect(lux::Point(0, 0), size, barColor);
         drawList->drawRect(lux::Point(0, 0), size, borderColor);
