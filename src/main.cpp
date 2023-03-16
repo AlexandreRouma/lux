@@ -37,9 +37,7 @@ private:
 
 int main() {
     MainWindow mainWindow;
-    MainWindow mainWindow2;
     mainWindow.show();
-    mainWindow2.show();
     lux::run();
     return 0;
 }
