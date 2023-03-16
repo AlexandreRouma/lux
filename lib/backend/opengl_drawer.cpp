@@ -47,7 +47,7 @@ namespace lux {
 
     void OpenGLDrawer::draw(const std::shared_ptr<DrawList>& drawList, const Color& clearColor, const Point& position) {
         // Define viewport and clear
-        glEnable(GL_SCISSOR_TEST); // TODO: Re-enable when actually calculated properly
+        // glEnable(GL_SCISSOR_TEST); // TODO: Re-enable when actually calculated properly
         glViewport(0, 0, size.x, size.y);
         glScissor(0, 0, size.x, size.y);
         glClearColor(clearColor.r, clearColor.g, clearColor.b, 1);

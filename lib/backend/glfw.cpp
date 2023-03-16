@@ -145,7 +145,7 @@ namespace lux::backend {
                 const Size& size = win.luxWin->getSize();
                 glfwGetWindowSize(win.glfwWin, &gsize.x, &gsize.y);
                 if (gsize.x > 0 && gsize.y > 0 && size != gsize) {
-                    win.luxWin->setContainerSize(gsize);
+                    win.luxWin->setSize(gsize);
                     win.drawer->setSize(gsize);
                 }
 

@@ -5,11 +5,12 @@
 namespace lux {
     class Button : public Widget {
     public:
-        Button(Widget* parent, const std::string& label, const Size& size = Size(200, 0));
+        Button(Widget* parent, const std::string& label, const Size& size = Size(FIT_CONTENT, FIT_CONTENT));
+        ~Button();
 
-        void setContainerSize(const Size& containerSize);
 
     private:
+        Size getFitContentSize();
         void draw();
     };
 }

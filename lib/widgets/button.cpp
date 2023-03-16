@@ -3,19 +3,18 @@
 
 namespace lux {
     Button::Button(Widget* parent, const std::string& label, const Size& size) : Widget(parent) {
-        this->size = size;
-        if (!this->size.y) { this->size.y = 25; }
+        setSize(size);
     }
 
-    void Button::setContainerSize(const Size& containerSize) {
-        Widget::setContainerSize(containerSize);
-        size.x = containerSize.x;
-        markForRedraw();
+    Button::~Button() {}
+
+    Size Button::getFitContentSize() {
+        return Size(100, 25);
     }
 
     void Button::draw() {
         drawList->clear();
-        drawList->setDrawArea(containerSize);
+        drawList->setDrawArea(size);
 
         auto barColor = lux::Color(60.0/255.0, 60.0/255.0, 60.0/255.0);
         auto borderColor = lux::Color(30.0/255.0, 30.0/255.0, 30.0/255.0);

@@ -4,9 +4,9 @@
 
 namespace lux {
     Window::Window(const Size& size, const std::string& title, const Point& position) : Widget(NULL) {
-        this->size = size;
         this->title = title;
         this->position = position;
+        setSize(size);
         updateButtonPositions();
     }
 
@@ -39,14 +39,6 @@ namespace lux {
         //backend::maximizeWindow(this);
     }
 
-    void Window::setContainerSize(const Size& containerSize) {
-        Widget::setContainerSize(containerSize);
-        this->size = containerSize;
-        updateButtonPositions();
-        rootWidget->setContainerSize(size - Size(10, 10 + 30 + 1/*TODO: Find why +1?*/));
-        markForRedraw();
-    }
-
     const std::string& Window::getTitle() {
         return title;
     }
@@ -71,8 +63,7 @@ namespace lux {
 
     void Window::setRootWidget(const std::shared_ptr<Widget>& rootWidget) {
         this->rootWidget = rootWidget;
-        // TODO: Could be negative
-        rootWidget->setContainerSize(size - Size(10, 10 + 30 + 1/*TODO: Find why +1?*/));
+        rootWidget->computeSize();
     }
 
     void Window::gainFocus() {
@@ -154,7 +145,20 @@ namespace lux {
         //flog::info("[{}] Mouse move ({}, {})", title, mpos.x, mpos.y);
     }
 
+    Size Window::getAvailableSize(Widget* child) {
+        return size - Size(10, 10 + 30 + 1/*TODO: Find why +1?*/);
+    }
+
+    Size Window::getFitContentSize() {
+        return size;
+    }
+
+    void Window::childrenComputeSize() {
+        if (rootWidget) { rootWidget->computeSize(); }
+    }
+
     void Window::draw() {
+        updateButtonPositions();
         drawList->clear();
         drawList->setDrawArea(size);
 

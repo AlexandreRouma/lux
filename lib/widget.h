@@ -1,20 +1,19 @@
 #pragma once
 #include "point.h"
 #include "draw_list.h"
+#include <limits.h>
 
 namespace lux {
     enum SizeMode {
         FIT_CONTAINER   = -1,
-        FIT_CONTENT     = 0
+        FIT_CONTENT     = 0,
+        NO_LIMIT        = INT_MAX
     };
 
     class Widget {
     public:
-        Widget(Widget* parent, const Size& size);
+        Widget(Widget* parent);
         virtual ~Widget();
-
-        Size getContainerSize();
-        void setContainerSize(const Size& containerSize);
         
         const Size& getSize();
         void setSize(const Size& requestedSize);
@@ -24,15 +23,20 @@ namespace lux {
         bool redrawRequired();
         const std::shared_ptr<DrawList>& getDrawList();
 
+        // TODO: Hide from public view
+        void computeSize();
 
     protected:
-        void computeSize();
+
+        virtual Size getAvailableSize(Widget* child);
+        virtual Size getFitContentSize() = 0;
+        // TODO: Make child list standard
+        virtual void childrenComputeSize();
 
         virtual void draw() = 0;
 
         Widget* parent;
-
-        Size containerSize = Size(100, 100);
+        Size availableSize;
         Size requestedSize;
         Size size;
 

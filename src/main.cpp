@@ -2,37 +2,24 @@
 #include "lux.h"
 #include "window.h"
 #include "flog.h"
+#include "widgets/div.h"
 #include "widgets/button.h"
-#include "layouts/vertical_layout.h"
+#include <chrono>
 
 class MainWindow : public lux::Window {
 public:
-    MainWindow() : lux::Window(lux::Point(1280, 720), "Hello Lux!", lux::Point(500, 300)) {
-        layout = std::make_shared<lux::VerticalLayout>(this);
-        setRootWidget(layout);
-        
-        btn1 = std::make_shared<lux::Button>(layout.get(), "Button 1");
-        layout->addElement(btn1);
-        btn2 = std::make_shared<lux::Button>(layout.get(), "Button 2");
-        layout->addElement(btn2);
-        btn3 = std::make_shared<lux::Button>(layout.get(), "Button 3");
-        layout->addElement(btn3);
+    MainWindow() : lux::Window(lux::Point(320, 240), "Hello Lux!", lux::Point(500, 300)) {
+        auto start = std::chrono::high_resolution_clock::now();
 
-        secWin = std::make_shared<lux::Window>(lux::Size(320, 240), "Second Window");
-    }
+        btn = std::make_shared<lux::Button>(this, "Button 1");
+        setRootWidget(btn);
 
-    void gainFocus() {
-        lux::Window::gainFocus();
-        //secWin->show();
+        auto end = std::chrono::high_resolution_clock::now();
+        flog::warn("Construct: {} us", (int)std::chrono::duration_cast<std::chrono::microseconds>(end-start).count());
     }
 
 private:
-    std::shared_ptr<lux::VerticalLayout> layout;
-    std::shared_ptr<lux::Button> btn1;
-    std::shared_ptr<lux::Button> btn2;
-    std::shared_ptr<lux::Button> btn3;
-
-    std::shared_ptr<lux::Window> secWin;
+    std::shared_ptr<lux::Button> btn;
 };
 
 int main() {

@@ -17,8 +17,6 @@ namespace lux {
         virtual void minimize();
         virtual void maximize();
 
-        void setContainerSize(const Size& containerSize);
-
         const std::string& getTitle();
         void setTitle(const std::string& title);
 
@@ -40,6 +38,10 @@ namespace lux {
         virtual void mouseMove(const Point& mpos);
 
     private:
+        Size getAvailableSize(Widget* child);
+        Size getFitContentSize();
+        void childrenComputeSize();
+
         void draw();
         void updateButtonPositions();
 
