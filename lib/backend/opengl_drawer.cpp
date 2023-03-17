@@ -1,12 +1,14 @@
 #include "opengl_drawer.h"
 #include "flog.h"
 #include "../../vendor/glm/gtc/type_ptr.hpp"
+#include "../lux.h"
 #include <stdexcept>
 
 namespace lux {
     const char* VS =
         "#version 330\n"
-        "uniform mat4 projMat;"
+        "uniform mat4 projMat;\n"
+        "uniform mat4 testMat;\n"
         "in vec3 pos;\n"
         "void main() {\n"
         "    gl_Position = projMat * vec4(pos, 1.0);\n"
@@ -25,6 +27,7 @@ namespace lux {
     const char* FVS =
         "#version 330\n"
         "uniform mat4 projMat;"
+        "uniform mat4 testMat;\n"
         "in vec3 pos;\n"
         "in vec2 texCoord;\n"
         "out vec2 _texCoord;\n"
@@ -54,35 +57,34 @@ namespace lux {
         fontShader = std::make_shared<Shader>(FVS, FFS);
 
         // Load font
-        font = std::make_shared<Font>("../res/Roboto-Medium.ttf", 16);
+        fontTexture = std::make_shared<Texture>(512, 512, 0, GL_RED, GL_RED, GL_UNSIGNED_BYTE, font->getBitmap());
         
         // Configure normal VAO
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
         glGenBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glVertexAttribPointer(shader->getPosAttribute(), 3, GL_FLOAT, GL_FALSE, (3*sizeof(float)), NULL);
-        glEnableVertexAttribArray(shader->getPosAttribute());
+        glVertexAttribPointer(shader->attrib("pos"), 3, GL_FLOAT, GL_FALSE, (3*sizeof(float)), NULL);
+        glEnableVertexAttribArray(shader->attrib("pos"));
 
         // Configure font VAO
         glGenVertexArrays(1, &fontVAO);
         glBindVertexArray(fontVAO);
         glGenBuffers(1, &fontVBO);
         glBindBuffer(GL_ARRAY_BUFFER, fontVBO);
-        GLint texCoordAttr = glGetAttribLocation((GLint)*fontShader, "texCoord");
-        glVertexAttribPointer(fontShader->getPosAttribute(), 3, GL_FLOAT, GL_FALSE, (5*sizeof(float)), NULL);
-        glEnableVertexAttribArray(fontShader->getPosAttribute());
-        glVertexAttribPointer(texCoordAttr, 2, GL_FLOAT, GL_FALSE, (5*sizeof(float)), (void*)(3*sizeof(float)));
-        glEnableVertexAttribArray(texCoordAttr);
+        glVertexAttribPointer(fontShader->attrib("pos"), 3, GL_FLOAT, GL_FALSE, (5*sizeof(float)), NULL);
+        glEnableVertexAttribArray(fontShader->attrib("pos"));
+        glVertexAttribPointer(fontShader->attrib("texCoord"), 2, GL_FLOAT, GL_FALSE, (5*sizeof(float)), (void*)(3*sizeof(float)));
+        glEnableVertexAttribArray(fontShader->attrib("texCoord"));
 
         // Save normal uniforms
-        colorUniform = glGetUniformLocation((GLint)*shader, "inColor");
-        projMatUniform = glGetUniformLocation((GLint)*shader, "projMat");
+        colorUniform = shader->uniform("inColor");
+        projMatUniform = shader->uniform("projMat");
         
         // Save font uniforms
-        fontColorUniform = glGetUniformLocation((GLint)*fontShader, "inColor");
-        fontProjMatUniform = glGetUniformLocation((GLint)*fontShader, "projMat");
-        fontTextureUniform = glGetUniformLocation((GLint)*fontShader, "tex");
+        fontColorUniform = fontShader->uniform("inColor");
+        fontProjMatUniform = fontShader->uniform("projMat");
+        fontTextureUniform = fontShader->uniform("tex");
     }
 
     void OpenGLDrawer::setSize(const Size& size) {
@@ -196,8 +198,8 @@ namespace lux {
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
         else if (step.op == DRAW_OP_DRAW_TEXT) {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, font->texId);
+            auto in = font->getCharInfo(0);
+            fontTexture->use(GL_TEXTURE0);
 
             // Switch to font VAO and shader
             glBindVertexArray(fontVAO);
@@ -212,22 +214,20 @@ namespace lux {
             float y = step.p.y + position.y;
 
             for (char c : step.text) {
-                auto in = font->getCharInfo(c);
-
-                glm::vec2 p1(x + in->xoff, y + in->yoff);
-                glm::vec2 p2 = p1 + glm::vec2(in->x1 - in->x0, in->y1 - in->y0);
-
+                stbtt_aligned_quad q;
+                stbtt_GetBakedQuad(in, 512, 512, c, &x, &y, &q, true);
+                
                 // Write positions
                 float buf[30] = {
                     // Top left
-                    p1.x, p1.y, 1.0, (float)in->x0 / 511.0f, (float)in->y0 / 511.0f,
-                    p2.x, p1.y, 1.0, (float)in->x1 / 511.0f, (float)in->y0 / 511.0f,
-                    p1.x, p2.y, 1.0, (float)in->x0 / 511.0f, (float)in->y1 / 511.0f,
+                    q.x0, q.y0, 1.0, q.s0, q.t0,
+                    q.x1, q.y0, 1.0, q.s1, q.t0,
+                    q.x0, q.y1, 1.0, q.s0, q.t1,
 
                     // Bottom right
-                    p2.x, p1.y, 1.0, (float)in->x1 / 511.0f, (float)in->y0 / 511.0f,
-                    p1.x, p2.y, 1.0, (float)in->x0 / 511.0f, (float)in->y1 / 511.0f,
-                    p2.x, p2.y, 1.0, (float)in->x1 / 511.0f, (float)in->y1 / 511.0f
+                    q.x1, q.y0, 1.0, q.s1, q.t0,
+                    q.x0, q.y1, 1.0, q.s0, q.t1,
+                    q.x1, q.y1, 1.0, q.s1, q.t1,
                 };
 
                 glBufferData(GL_ARRAY_BUFFER, sizeof(buf), buf, GL_DYNAMIC_DRAW);

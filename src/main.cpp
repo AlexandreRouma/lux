@@ -12,7 +12,7 @@ public:
     MainWindow() : lux::Window(lux::Point(320, 240), "Hello Lux!", lux::Point(500, 300)) {
         auto start = std::chrono::high_resolution_clock::now();
 
-        btn = std::make_shared<lux::Button>(this, "Button 1", lux::Size(65, lux::FIT_CONTENT));
+        btn = std::make_shared<lux::Button>(this, "This button was sized automatically!");
         setRootWidget(btn);
 
         auto end = std::chrono::high_resolution_clock::now();
@@ -25,6 +25,7 @@ private:
 
 int main() {
     try {
+        lux::font = std::make_shared<lux::Font>("../res/Roboto-Medium.ttf", 30);
         MainWindow mainWindow;
         mainWindow.show();
         lux::run();

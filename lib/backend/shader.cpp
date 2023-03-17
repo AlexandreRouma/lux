@@ -1,5 +1,6 @@
 #include "shader.h"
 #include "flog.h"
+#include "string.h"
 #include <stdexcept>
 
 Shader::Shader(const char* vertSource, const char* fragSource) {
@@ -24,13 +25,6 @@ Shader::Shader(const char* vertSource, const char* fragSource) {
     glLinkProgram(prog);
     checkProgram(prog);
 
-    // Get attributes
-    pos = glGetAttribLocation(prog, "pos");
-    if (pos < 0) {
-        flog::error("Could not find position attribute");
-        throw std::runtime_error("Could not find position attribute");
-    }
-
     // Delete individual shaders
     glDeleteShader(vs);
     glDeleteShader(fs);
@@ -44,8 +38,34 @@ void Shader::use() {
     glUseProgram(prog);
 }
 
-GLint Shader::getPosAttribute() {
-    return pos;
+GLuint Shader::attrib(const char* name) {
+    // If value is already cached, return it
+    if (attribs.find(name) != attribs.end()) {
+        return attribs[name];
+    }
+
+    // Search for value and error out if not found
+    GLint attrib = glGetAttribLocation(prog, name);
+    if (attrib < 0) { throw std::runtime_error("Could not find attribute"); }
+
+    // Save and return attribute
+    attribs[name] = attrib;
+    return attrib;
+}
+
+GLuint Shader::uniform(const char* name) {
+    // If value is already cached, return it
+    if (uniforms.find(name) != uniforms.end()) {
+        return uniforms[name];
+    }
+
+    // Search for value and error out if not found
+    GLint uniform = glGetUniformLocation(prog, name);
+    if (uniform < 0) { throw std::runtime_error("Could not find attribute"); }
+
+    // Save and return attribute
+    uniforms[name] = uniform;
+    return uniform;
 }
 
 void Shader::checkShader(GLint shader) {

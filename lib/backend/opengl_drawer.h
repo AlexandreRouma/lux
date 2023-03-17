@@ -5,7 +5,7 @@
 #include "../point.h"
 #include "../color.h"
 #include "../draw_list.h"
-#include "font.h"
+#include "texture.h"
 
 namespace lux {
     class OpenGLDrawer {
@@ -24,8 +24,7 @@ namespace lux {
         Size size;
         std::shared_ptr<Shader> shader;
         std::shared_ptr<Shader> fontShader;
-
-        std::shared_ptr<Font> font;
+        std::shared_ptr<Texture> fontTexture;
 
         GLuint VAO;
         GLuint VBO;

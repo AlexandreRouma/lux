@@ -1,6 +1,7 @@
 #pragma once
 #include "../vendor/glad/glad.h"
 #include <string>
+#include <map>
 
 class Shader {
 public:
@@ -8,14 +9,16 @@ public:
     ~Shader();
 
     operator GLint() const { return prog; }
+    GLuint attrib(const char* name);
+    GLuint uniform(const char* name);
     
     void use();
-    GLint getPosAttribute();
-
+    
 private:
     static void checkShader(GLint shader);
     static void checkProgram(GLint program);
 
     GLint prog = -1;
-    GLint pos = -1;
+    std::map<std::string, GLuint> attribs;
+    std::map<std::string, GLuint> uniforms;
 };

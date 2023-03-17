@@ -2,10 +2,12 @@
 #include "font.h"
 #include <fstream>
 #include <stdexcept>
-
+#include "flog.h"
 
 namespace lux {
     Font::Font(const std::string& path, int size) {
+        height = size;
+        
         // Open font file
         std::ifstream file(path, std::ios::in | std::ios::binary | std::ios::ate);
         if (!file.is_open()) { throw std::runtime_error("Could not open font file"); }
@@ -20,18 +22,13 @@ namespace lux {
         file.close();
 
         // Allocate bitmap
+        bitmapSize = Size(64, 64);
+        
         // TODO: Try different sizes to not waste memory
         bitmap = new uint8_t[512*512];
         bcs = new stbtt_bakedchar[256];
-        stbtt_BakeFontBitmap(fontData, 0, size, bitmap, 512, 512, 0, 256, bcs);
-
-        // Allocate and write texture
-        glActiveTexture(GL_TEXTURE0);
-        glGenTextures(1, &texId);
-        glBindTexture(GL_TEXTURE_2D, texId);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 512, 512, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap);
+        int ret = stbtt_BakeFontBitmap(fontData, 0, size, bitmap, 512, 512, 0, 256, bcs);
+        flog::debug("test: {}", ret);
 
         // free font data
         delete[] fontData;
@@ -48,6 +45,10 @@ namespace lux {
 
     uint8_t* const Font::getBitmap() {
         return bitmap;
+    }
+
+    int Font::getHeight() {
+        return height;
     }
 
     int Font::calcTextSize(const std::string& str) {
