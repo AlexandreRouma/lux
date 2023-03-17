@@ -4,7 +4,7 @@
 
 class Shader {
 public:
-    Shader(const std::string& vertSource, const std::string& fragSource);
+    Shader(const char* vertSource, const char* fragSource);
     ~Shader();
 
     operator GLint() const { return prog; }

@@ -12,5 +12,7 @@ namespace lux {
     private:
         Size getFitContentSize();
         void draw();
+
+        std::string label;
     };
 }

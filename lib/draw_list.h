@@ -13,6 +13,7 @@ namespace lux {
         DRAW_OP_DRAW_LINE,
         DRAW_OP_DRAW_RECT,
         DRAW_OP_FILL_RECT,
+        DRAW_OP_DRAW_TEXT,
         DRAW_OP_DRAW_LIST
     };
     
@@ -25,6 +26,7 @@ namespace lux {
         Point p2;
         Color color;
         std::shared_ptr<DrawList> list;
+        std::string text;
     };
 
     class DrawList {
@@ -43,6 +45,7 @@ namespace lux {
         void drawLine(const Point& p1, const Point& p2, const Color& color);
         void drawRect(const Point& p1, const Point& p2, const Color& color);
         void fillRect(const Point& p1, const Point& p2, const Color& color);
+        void drawText(const Point& p, const Color& color, const std::string& text);
         void drawList(const Point& p, const std::shared_ptr<DrawList>& list);
 
         const std::vector<DrawStep>& getSteps() const;

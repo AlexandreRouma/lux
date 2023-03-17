@@ -2,20 +2,18 @@
 #include "flog.h"
 #include <stdexcept>
 
-Shader::Shader(const std::string& vertSource, const std::string& fragSource) {
+Shader::Shader(const char* vertSource, const char* fragSource) {
     // Create and compile vertex shader
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    const char* vss = vertSource.c_str();
-    int vsl = vertSource.size();
-    glShaderSource(vs, 1, &vss, &vsl);
+    int vsl = strlen(vertSource);
+    glShaderSource(vs, 1, &vertSource, &vsl);
     glCompileShader(vs);
     checkShader(vs);
 
     // Create and compile fragment shader
     GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    const char* fss = fragSource.c_str();
-    int fsl = fragSource.size();
-    glShaderSource(fs, 1, &fss, &fsl);
+    int fsl = strlen(fragSource);
+    glShaderSource(fs, 1, &fragSource, &fsl);
     glCompileShader(fs);
     checkShader(fs);
 

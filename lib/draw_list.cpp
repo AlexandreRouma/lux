@@ -50,6 +50,15 @@ namespace lux {
         steps.push_back(step);
     }
 
+    void DrawList::drawText(const Point& p, const Color& color, const std::string& text) {
+        DrawStep step;
+        step.op = DRAW_OP_DRAW_TEXT;
+        step.p = p;
+        step.color = color;
+        step.text = text;
+        steps.push_back(step);
+    }
+
     void DrawList::drawList(const Point& p, const std::shared_ptr<DrawList>& list) {
         DrawStep step;
         step.op = DRAW_OP_DRAW_LIST;

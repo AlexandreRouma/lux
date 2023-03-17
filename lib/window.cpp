@@ -203,6 +203,11 @@ namespace lux {
         drawList->drawLine(lux::Point(clsBtnX, 9), lux::Point(clsBtnX+9, 18), textColor);
         drawList->drawLine(lux::Point(clsBtnX, 18), lux::Point(clsBtnX+9, 9), textColor);
 
+        // Border
+        //drawList->drawRect(lux::Point(0, 0), size - lux::Point(1, 1), barColor);
+
+        drawList->drawText(lux::Point(9, 20), lux::Color(1.0, 1.0, 1.0), title);
+
         // Draw widget
         if (rootWidget) { drawList->drawList(Point(5, 31 + 5), rootWidget->getDrawList()); }
     }
