@@ -1,57 +1,50 @@
 #pragma once
-#include "point.h"
+#include "vec2.h"
 #include "color.h"
 #include <vector>
 #include <string>
 #include <memory>
 
 namespace lux {
-    class DrawList;
-    
-    enum DrawOp {
-        DRAW_OP_NONE,
-        DRAW_OP_DRAW_LINE,
-        DRAW_OP_DRAW_RECT,
-        DRAW_OP_FILL_RECT,
-        DRAW_OP_DRAW_TEXT,
-        DRAW_OP_DRAW_LIST
+#pragma pack(push, 1)
+    struct VertexAttrib {
+        float posAttr[2];
+        float colorAttr[4];
+        float texCoordAttr[2];
     };
-    
-    class DrawStep {
-    public:
-        virtual ~DrawStep() {}
-        DrawOp op;
-        Point p;
-        Point p1;
-        Point p2;
-        Color color;
-        std::shared_ptr<DrawList> list;
-        std::string text;
+#pragma pack(pop)
+
+    struct DrawElement {
+        int addVertex(const Vec2f& pos, const Color& color, const Vec2f& texCoord = Vec2f(0.0f, 0.0f));
+        void addTri(int a, int b, int c);
+        bool empty();
+
+        std::vector<VertexAttrib> vertices;
+        std::vector<int> indices;
     };
 
     class DrawList {
     public:
         DrawList();
-        DrawList(const DrawList& other);
-
-        // TODO: Draw area of recursive lists must be limited to not go outside the boudries
-        // TODO: Gotta find a way to get proper layering.
 
         bool empty();
         void clear();
         void setDrawArea(const Size& drawArea);
         const Size& getDrawArea();
 
-        void drawLine(const Point& p1, const Point& p2, const Color& color);
+        void drawLine(const Point& p1, const Point& p2, const Color& color, int width = 1);
         void drawRect(const Point& p1, const Point& p2, const Color& color);
         void fillRect(const Point& p1, const Point& p2, const Color& color);
-        void drawText(const Point& p, const Color& color, const std::string& text);
-        void drawList(const Point& p, const std::shared_ptr<DrawList>& list);
+        //void drawText(const Point& p, const Color& color, const std::string& text);
+        //void drawList(const Point& p, const std::shared_ptr<DrawList>& list);
 
-        const std::vector<DrawStep>& getSteps() const;
+        const std::vector<DrawElement>& getElements();
 
-    private:
+    //private:
+        void newElement();
+
         Size drawArea = Size(0, 0);
-        std::vector<DrawStep> steps;
+        DrawElement* elem;
+        std::vector<DrawElement> elements;
     };
 }

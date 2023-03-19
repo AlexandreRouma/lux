@@ -1,20 +1,21 @@
 #include "shader.h"
 #include "flog.h"
-#include "string.h"
 #include <stdexcept>
 
-Shader::Shader(const char* vertSource, const char* fragSource) {
+Shader::Shader(const std::string& vertSource, const std::string& fragSource) {
     // Create and compile vertex shader
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    int vsl = strlen(vertSource);
-    glShaderSource(vs, 1, &vertSource, &vsl);
+    const char* vss = vertSource.c_str();
+    int vsl = vertSource.size();
+    glShaderSource(vs, 1, &vss, &vsl);
     glCompileShader(vs);
     checkShader(vs);
 
     // Create and compile fragment shader
     GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    int fsl = strlen(fragSource);
-    glShaderSource(fs, 1, &fragSource, &fsl);
+    const char* fss = fragSource.c_str();
+    int fsl = fragSource.size();
+    glShaderSource(fs, 1, &fss, &fsl);
     glCompileShader(fs);
     checkShader(fs);
 
@@ -38,30 +39,30 @@ void Shader::use() {
     glUseProgram(prog);
 }
 
-GLuint Shader::attrib(const char* name) {
+GLuint Shader::getAttribute(const std::string& name) {
     // If value is already cached, return it
     if (attribs.find(name) != attribs.end()) {
         return attribs[name];
     }
 
     // Search for value and error out if not found
-    GLint attrib = glGetAttribLocation(prog, name);
-    if (attrib < 0) { throw std::runtime_error("Could not find attribute"); }
+    GLint attrib = glGetAttribLocation(prog, name.c_str());
+    if (attrib < 0) { flog::warn("Could not find attribute '{}'", name); }
 
     // Save and return attribute
     attribs[name] = attrib;
     return attrib;
 }
 
-GLuint Shader::uniform(const char* name) {
+GLuint Shader::getUniform(const std::string& name) {
     // If value is already cached, return it
     if (uniforms.find(name) != uniforms.end()) {
         return uniforms[name];
     }
 
     // Search for value and error out if not found
-    GLint uniform = glGetUniformLocation(prog, name);
-    if (uniform < 0) { throw std::runtime_error("Could not find attribute"); }
+    GLint uniform = glGetUniformLocation(prog, name.c_str());
+    if (uniform < 0) { flog::warn("Could not find uniform '{}'", name); }
 
     // Save and return attribute
     uniforms[name] = uniform;

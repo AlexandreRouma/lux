@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
-#include "point.h"
+#include "vec2.h"
 #include "color.h"
 #include "draw_list.h"
 #include "widget.h"

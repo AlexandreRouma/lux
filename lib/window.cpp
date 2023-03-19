@@ -204,15 +204,25 @@ namespace lux {
         drawList->drawLine(lux::Point(clsBtnX, 18), lux::Point(clsBtnX+9, 9), textColor);
 
         // Border
-        //drawList->drawRect(lux::Point(0, 0), size - lux::Point(1, 1), barColor);
+        // drawList->drawRect(lux::Point(0, 0), size - lux::Point(10, 10), barColor);
 
-        drawList->drawText(lux::Point(9, 20), lux::Color(1.0, 1.0, 1.0), title);
+        // drawList->drawText(lux::Point(9, 20), lux::Color(1.0, 1.0, 1.0), title);
 
-        // Draw widget
-        if (rootWidget) { drawList->drawList(Point(5, 31 + 5), rootWidget->getDrawList()); }
+        srand(69);
+        for (int i = 0; i < 1000; i++) {
+            if (i && i%5 == 0) drawList->newElement();
+            auto p1 = Point(rand() % size.x, rand() % size.y);
+            auto p2 = Point(rand() % size.x, rand() % size.y);
+            drawList->drawRect(p1, p2, Color(1.0, 1.0, 1.0));
+        }
+
+
+        // // Draw widget
+        // if (rootWidget) { drawList->drawList(Point(5, 31 + 5), rootWidget->getDrawList()); }
     }
 
     void Window::updateButtonPositions() {
+        // TODO: They overlap...
         minimizeP1 = Point(size.x - 138, 0);
         minimizeP2 = minimizeP1 + Point(46, 30);
         maximizeP1 = Point(size.x - 93, 0);;

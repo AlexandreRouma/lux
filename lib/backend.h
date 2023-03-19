@@ -1,6 +1,6 @@
 #pragma once
 #include "window.h"
-#include "point.h"
+#include "vec2.h"
 
 namespace lux::backend {
     void registerWindow(Window* window);

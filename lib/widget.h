@@ -1,5 +1,5 @@
 #pragma once
-#include "point.h"
+#include "vec2.h"
 #include "draw_list.h"
 #include <limits.h>
 
@@ -19,6 +19,7 @@ namespace lux {
         void setSize(const Size& requestedSize);
 
         // TODO: Optimize it to avoid multiple recursive call when already marked for redraw
+        // TODO: Also make a different between drawing and mearly rerendering
         void markForRedraw();
         bool redrawRequired();
         const std::shared_ptr<DrawList>& getDrawList();

@@ -2,7 +2,7 @@
 #include "../vendor/glad/glad.h"
 #include "../vendor/glm/glm.hpp"
 #include "shader.h"
-#include "../point.h"
+#include "../vec2.h"
 #include "../color.h"
 #include "../draw_list.h"
 #include "texture.h"
@@ -14,28 +14,20 @@ namespace lux {
 
         void setSize(const Size& size);
 
-        void draw(const std::shared_ptr<DrawList>& drawList, const Color& clearColor, const Point& position = Point(0, 0));
+        void draw(const std::shared_ptr<DrawList>& drawList, const Color& clearColor);
 
     private:
-        void drawFullList(const std::shared_ptr<DrawList>& drawList, const Point& position, const Size& parentArea);
-        void drawStep(const DrawStep& step, const Point& position);
         void updateProjMatrix();
 
         Size size;
         std::shared_ptr<Shader> shader;
-        std::shared_ptr<Shader> fontShader;
-        std::shared_ptr<Texture> fontTexture;
 
         GLuint VAO;
         GLuint VBO;
-        GLuint colorUniform;
-        GLuint projMatUniform;
-
-        GLuint fontVAO;
-        GLuint fontVBO;
-        GLuint fontColorUniform;
-        GLuint fontProjMatUniform;
-        GLuint fontTextureUniform;
+        GLuint EBO;
+        GLuint projMatUnif;
+        int VBOCapacity = 0;
+        int EBOCapacity = 0;
 
         glm::mat4 projMat;
     };

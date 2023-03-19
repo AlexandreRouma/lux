@@ -7,6 +7,7 @@
 namespace lux::backend {
     bool isInit = false;
     GLFWmonitor* primaryMonitor;
+    // TODO: Make this a map from lux::Window* to the struct... literally the best way
     std::vector<BackendWindow> windows;
     std::vector<Window*> toClose;
 
@@ -23,6 +24,8 @@ namespace lux::backend {
         // Save primary monitor
         primaryMonitor = glfwGetPrimaryMonitor();
     }
+
+    double lastTime = 0.0;
 
     void registerWindow(Window* window) {
         // Init in case it's not already

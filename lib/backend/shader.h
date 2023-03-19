@@ -5,12 +5,12 @@
 
 class Shader {
 public:
-    Shader(const char* vertSource, const char* fragSource);
+    Shader(const std::string& vertSource, const std::string& fragSource);
     ~Shader();
 
     operator GLint() const { return prog; }
-    GLuint attrib(const char* name);
-    GLuint uniform(const char* name);
+    GLuint getAttribute(const std::string& name);
+    GLuint getUniform(const std::string& name);
     
     void use();
     

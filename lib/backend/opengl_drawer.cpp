@@ -6,45 +6,26 @@
 
 namespace lux {
     const char* VS =
-        "#version 330\n"
-        "uniform mat4 projMat;\n"
-        "uniform mat4 testMat;\n"
-        "in vec3 pos;\n"
+        "#version 120\n"
+        "uniform mat4 projMatUnif;\n"
+        "attribute vec2 posAttr;\n"
+        "attribute vec4 colorAttr;\n"
+        "attribute vec2 texCoordAttr;\n"
+        "varying vec4 color;\n"
+        "varying vec2 texCoord;\n"
         "void main() {\n"
-        "    gl_Position = projMat * vec4(pos, 1.0);\n"
+        "    gl_Position = projMatUnif * vec4(posAttr, 1.0, 1.0);\n"
+        "    color = colorAttr;\n"
+        "    texCoord = texCoordAttr;\n"
         "}"
     ;
 
     const char* FS =
-        "#version 330\n"
-        "uniform vec4 inColor;\n"
-        "out vec4 color;\n"
+        "#version 120\n"
+        "varying vec4 color;\n"
+        "varying vec2 texCoord;\n"
         "void main() {\n"
-        "    color = inColor;\n"
-        "}"
-    ;
-
-    const char* FVS =
-        "#version 330\n"
-        "uniform mat4 projMat;"
-        "uniform mat4 testMat;\n"
-        "in vec3 pos;\n"
-        "in vec2 texCoord;\n"
-        "out vec2 _texCoord;\n"
-        "void main() {\n"
-        "    gl_Position = projMat * vec4(pos, 1.0);\n"
-        "    _texCoord = texCoord;\n"
-        "}"
-    ;
-
-    const char* FFS =
-        "#version 330\n"
-        "uniform vec4 inColor;\n"
-        "uniform sampler2D tex;\n"
-        "in vec2 _texCoord;\n"
-        "out vec4 color;\n"
-        "void main() {\n"
-        "    color = texture(tex, _texCoord).r * inColor;\n"
+        "    gl_FragColor = color;\n"
         "}"
     ;
 
@@ -52,39 +33,28 @@ namespace lux {
         this->size = size;
         updateProjMatrix();
 
-        // Load shaders
+        // Load shader and get variable positions
         shader = std::make_shared<Shader>(VS, FS);
-        fontShader = std::make_shared<Shader>(FVS, FFS);
-
-        // Load font
-        fontTexture = std::make_shared<Texture>(512, 512, 0, GL_RED, GL_RED, GL_UNSIGNED_BYTE, font->getBitmap());
+        projMatUnif = shader->getUniform("projMatUnif");
+        GLuint posAttr = shader->getAttribute("posAttr");
+        GLuint colorAttr = shader->getAttribute("colorAttr");
+        GLuint texCoordAttr = shader->getAttribute("texCoordAttr");
         
-        // Configure normal VAO
+        // Allocate VAO, VBO and EBO
         glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
         glGenBuffers(1, &VBO);
+        glGenBuffers(1, &EBO);
+
+        // Define vertex attributes
+        glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glVertexAttribPointer(shader->attrib("pos"), 3, GL_FLOAT, GL_FALSE, (3*sizeof(float)), NULL);
-        glEnableVertexAttribArray(shader->attrib("pos"));
-
-        // Configure font VAO
-        glGenVertexArrays(1, &fontVAO);
-        glBindVertexArray(fontVAO);
-        glGenBuffers(1, &fontVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, fontVBO);
-        glVertexAttribPointer(fontShader->attrib("pos"), 3, GL_FLOAT, GL_FALSE, (5*sizeof(float)), NULL);
-        glEnableVertexAttribArray(fontShader->attrib("pos"));
-        glVertexAttribPointer(fontShader->attrib("texCoord"), 2, GL_FLOAT, GL_FALSE, (5*sizeof(float)), (void*)(3*sizeof(float)));
-        glEnableVertexAttribArray(fontShader->attrib("texCoord"));
-
-        // Save normal uniforms
-        colorUniform = shader->uniform("inColor");
-        projMatUniform = shader->uniform("projMat");
-        
-        // Save font uniforms
-        fontColorUniform = fontShader->uniform("inColor");
-        fontProjMatUniform = fontShader->uniform("projMat");
-        fontTextureUniform = fontShader->uniform("tex");
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(0 * sizeof(float)));
+        glVertexAttribPointer(colorAttr, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(2 * sizeof(float)));
+        glVertexAttribPointer(texCoordAttr, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(posAttr);
+        glEnableVertexAttribArray(colorAttr);
+        glEnableVertexAttribArray(texCoordAttr);
     }
 
     void OpenGLDrawer::setSize(const Size& size) {
@@ -92,156 +62,49 @@ namespace lux {
         updateProjMatrix();
     }
 
-    void OpenGLDrawer::draw(const std::shared_ptr<DrawList>& drawList, const Color& clearColor, const Point& position) {
-        // Define viewport and clear
-        // glEnable(GL_SCISSOR_TEST); // TODO: Re-enable when actually calculated properly
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    void OpenGLDrawer::draw(const std::shared_ptr<DrawList>& drawList, const Color& clearColor) {
+        // Define vuewport and clear buffers
         glViewport(0, 0, size.x, size.y);
-        glScissor(0, 0, size.x, size.y);
-        glClearColor(clearColor.r, clearColor.g, clearColor.b, 1);
+        glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Normal mode
+        // Load arrays and buffers
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+        // Enable shader and load uniforms
         shader->use();
-        glUniformMatrix4fv(projMatUniform, 1, GL_FALSE, glm::value_ptr(projMat));
+        glUniformMatrix4fv(projMatUnif, 1, GL_FALSE, glm::value_ptr(projMat));
 
-        // Draw the list
-        drawFullList(drawList, position, size);
-    }
+        // Draw each element
+        const auto& elemList = drawList->getElements();
+        for (const auto& elem : elemList) {
+            // Don't render if empty
+            if (elem.indices.empty()) { continue; }
 
-    void OpenGLDrawer::drawFullList(const std::shared_ptr<DrawList>& drawList, const Point& position, const Size& parentArea) {
-        // TODO: This doesn't work correctly
-        auto remainingArea = parentArea - position;
-        auto childArea = drawList->getDrawArea();
-        auto drawArea = Size(std::min<int>(childArea.x, remainingArea.x), std::min<int>(childArea.y, remainingArea.y));
-        glScissor(position.x, size.y - position.y - drawArea.y, drawArea.x, drawArea.y);
-        for (const auto& step : drawList->getSteps()) {
-            if (step.op == DRAW_OP_DRAW_LIST) {
-                drawFullList(step.list, position + step.p, drawArea);
-                continue;
+            // Load vertices and indices. Only reallocate if more space is required
+            int vertCount = elem.vertices.size();
+            int indCount = elem.indices.size();
+            if (vertCount > VBOCapacity) {
+                glBufferData(GL_ARRAY_BUFFER, vertCount * sizeof(VertexAttrib), elem.vertices.data(), GL_DYNAMIC_DRAW);
+                VBOCapacity = vertCount;
+                flog::debug("Reallocating vertex buffer to {}", vertCount);
             }
-            drawStep(step, position);
-        }
-    }
-
-    void OpenGLDrawer::drawStep(const DrawStep& step, const Point& position) {
-        if (step.op == DRAW_OP_DRAW_LINE) {
-            // Write positions
-            auto p1 = position + step.p1;
-            auto p2 = position + step.p2;
-            float buf[6] = {
-                p1.x, p1.y, 1.0,
-                p2.x, p2.y, 1.0,
-            };
-            glBufferData(GL_ARRAY_BUFFER, sizeof(buf), buf, GL_DYNAMIC_DRAW);
-
-            // Write color
-            glUniform4f(colorUniform, step.color.r, step.color.g, step.color.b, step.color.a);
-
-            // Draw
-            glDrawArrays(GL_LINES, 0, 2);
-        }
-        else if (step.op == DRAW_OP_DRAW_RECT) {
-            // Write positions
-            auto p1 = position + step.p1;
-            auto p2 = position + step.p2;
-            float buf[24] = {
-                // Top
-                p1.x, p1.y, 1.0,
-                p2.x, p1.y, 1.0,
-
-                // Left
-                p1.x, p1.y, 1.0,
-                p1.x, p2.y, 1.0,
-
-                // Bottom
-                p1.x, p2.y, 1.0,
-                p2.x, p2.y, 1.0,
-
-                // Right
-                p2.x, p1.y, 1.0,
-                p2.x, p2.y, 1.0
-            };
-            glBufferData(GL_ARRAY_BUFFER, sizeof(buf), buf, GL_DYNAMIC_DRAW);
-
-            // Write color
-            glUniform4f(colorUniform, step.color.r, step.color.g, step.color.b, step.color.a);
-
-            // Draw
-            glDrawArrays(GL_LINES, 0, 8);
-        }
-        else if (step.op == DRAW_OP_FILL_RECT) {
-            // Write positions
-            auto p1 = position + step.p1;
-            auto p2 = position + step.p2;
-            float buf[24] = {
-                // Top left
-                p1.x, p1.y, 1.0,
-                p2.x, p1.y, 1.0,
-                p1.x, p2.y, 1.0,
-
-                // Bottom right
-                p2.x, p1.y, 1.0,
-                p1.x, p2.y, 1.0,
-                p2.x, p2.y, 1.0
-            };
-            glBufferData(GL_ARRAY_BUFFER, sizeof(buf), buf, GL_DYNAMIC_DRAW);
-
-            // Write color
-            glUniform4f(colorUniform, step.color.r, step.color.g, step.color.b, step.color.a);
-
-            // Draw
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-        }
-        else if (step.op == DRAW_OP_DRAW_TEXT) {
-            auto in = font->getCharInfo(0);
-            fontTexture->use(GL_TEXTURE0);
-
-            // Switch to font VAO and shader
-            glBindVertexArray(fontVAO);
-            glBindBuffer(GL_ARRAY_BUFFER, fontVBO);
-            fontShader->use();
-
-            glUniformMatrix4fv(fontProjMatUniform, 1, GL_FALSE, glm::value_ptr(projMat));
-            glUniform4f(fontColorUniform, step.color.r, step.color.g, step.color.b, step.color.a);
-            glUniform1i(fontTextureUniform, 0);
-
-            float x = step.p.x + position.x;
-            float y = step.p.y + position.y;
-
-            for (char c : step.text) {
-                stbtt_aligned_quad q;
-                stbtt_GetBakedQuad(in, 512, 512, c, &x, &y, &q, true);
-                
-                // Write positions
-                float buf[30] = {
-                    // Top left
-                    q.x0, q.y0, 1.0, q.s0, q.t0,
-                    q.x1, q.y0, 1.0, q.s1, q.t0,
-                    q.x0, q.y1, 1.0, q.s0, q.t1,
-
-                    // Bottom right
-                    q.x1, q.y0, 1.0, q.s1, q.t0,
-                    q.x0, q.y1, 1.0, q.s0, q.t1,
-                    q.x1, q.y1, 1.0, q.s1, q.t1,
-                };
-
-                glBufferData(GL_ARRAY_BUFFER, sizeof(buf), buf, GL_DYNAMIC_DRAW);
-                glDrawArrays(GL_TRIANGLES, 0, 6);
-
-                // Increment
-                x += in->xadvance;
+            else {
+                glBufferSubData(GL_ARRAY_BUFFER, NULL, vertCount * sizeof(VertexAttrib), elem.vertices.data());
+            }
+            if (indCount > EBOCapacity) {
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indCount * sizeof(int), elem.indices.data(), GL_DYNAMIC_DRAW);
+                EBOCapacity = indCount;
+                flog::debug("Reallocating index buffer to {}", indCount);
+            }
+            else {
+                glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, NULL, indCount * sizeof(int), elem.indices.data());
             }
 
-            // Switch back to normal VAO and shader
-            glBindVertexArray(VAO);
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            shader->use();
-            glUniformMatrix4fv(projMatUniform, 1, GL_FALSE, glm::value_ptr(projMat));
+            // Draw indices
+            glDrawElements(GL_TRIANGLES, elem.indices.size(), GL_UNSIGNED_INT, NULL);
         }
     }
 
