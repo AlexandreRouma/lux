@@ -17,6 +17,7 @@ namespace lux {
         void draw(const std::shared_ptr<DrawList>& drawList, const Color& clearColor);
 
     private:
+        void drawListRecurse(const std::shared_ptr<DrawList>& drawList, const Point& position, const Size& viewArea);
         void updateProjMatrix();
 
         Size size;

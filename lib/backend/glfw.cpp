@@ -25,8 +25,6 @@ namespace lux::backend {
         primaryMonitor = glfwGetPrimaryMonitor();
     }
 
-    double lastTime = 0.0;
-
     void registerWindow(Window* window) {
         // Init in case it's not already
         init();
@@ -211,7 +209,7 @@ namespace lux::backend {
                 win.swapRequired = true;
             }
 
-            // VSync
+            // Configure
             glfwSwapInterval(true);
 
             // Swap buffers for each window

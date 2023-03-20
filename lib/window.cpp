@@ -208,13 +208,13 @@ namespace lux {
 
         // drawList->drawText(lux::Point(9, 20), lux::Color(1.0, 1.0, 1.0), title);
 
-        srand(69);
-        for (int i = 0; i < 1000; i++) {
-            if (i && i%5 == 0) drawList->newElement();
-            auto p1 = Point(rand() % size.x, rand() % size.y);
-            auto p2 = Point(rand() % size.x, rand() % size.y);
-            drawList->drawRect(p1, p2, Color(1.0, 1.0, 1.0));
-        }
+        // srand(69);
+        // for (int i = 0; i < 1000; i++) {
+        //     if (i && i%5 == 0) drawList->newElement();
+        //     auto p1 = Point(rand() % size.x, rand() % size.y);
+        //     auto p2 = Point(rand() % size.x, rand() % size.y);
+        //     drawList->drawRect(p1, p2, Color(1.0, 1.0, 1.0));
+        // }
 
 
         // // Draw widget

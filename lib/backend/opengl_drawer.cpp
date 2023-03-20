@@ -77,6 +77,11 @@ namespace lux {
         shader->use();
         glUniformMatrix4fv(projMatUnif, 1, GL_FALSE, glm::value_ptr(projMat));
 
+        // Draw recursively
+        drawListRecurse(drawList, Point(0, 0), size);
+    }
+
+    void OpenGLDrawer::drawListRecurse(const std::shared_ptr<DrawList>& drawList, const Point& position, const Size& viewArea) {
         // Draw each element
         const auto& elemList = drawList->getElements();
         for (const auto& elem : elemList) {
