@@ -108,9 +108,12 @@ namespace lux {
         
     // }
 
-    // void DrawList::drawList(const Point& p, const std::shared_ptr<DrawList>& list) {
-        
-    // }
+    void DrawList::drawList(const Point& p, const std::shared_ptr<DrawList>& list) {
+        newElement();
+        elem->drawListPos = p;
+        elem->drawList = list;
+        newElement();
+    }
 
     void DrawList::newElement() {
         elements.push_back(DrawElement());

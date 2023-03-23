@@ -14,11 +14,15 @@ namespace lux {
     };
 #pragma pack(pop)
 
+    class DrawList;
+
     struct DrawElement {
         int addVertex(const Vec2f& pos, const Color& color, const Vec2f& texCoord = Vec2f(0.0f, 0.0f));
         void addTri(int a, int b, int c);
         bool empty();
 
+        Point drawListPos;
+        std::shared_ptr<DrawList> drawList;
         std::vector<VertexAttrib> vertices;
         std::vector<int> indices;
     };
@@ -36,11 +40,11 @@ namespace lux {
         void drawRect(const Point& p1, const Point& p2, const Color& color);
         void fillRect(const Point& p1, const Point& p2, const Color& color);
         //void drawText(const Point& p, const Color& color, const std::string& text);
-        //void drawList(const Point& p, const std::shared_ptr<DrawList>& list);
+        void drawList(const Point& p, const std::shared_ptr<DrawList>& list);
 
         const std::vector<DrawElement>& getElements();
 
-    //private:
+    private:
         void newElement();
 
         Size drawArea = Size(0, 0);

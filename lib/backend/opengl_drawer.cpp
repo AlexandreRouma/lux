@@ -3,18 +3,20 @@
 #include "../../vendor/glm/gtc/type_ptr.hpp"
 #include "../lux.h"
 #include <stdexcept>
+#include <algorithm>
 
 namespace lux {
     const char* VS =
         "#version 120\n"
         "uniform mat4 projMatUnif;\n"
+        "uniform vec2 posUnif;\n"
         "attribute vec2 posAttr;\n"
         "attribute vec4 colorAttr;\n"
         "attribute vec2 texCoordAttr;\n"
         "varying vec4 color;\n"
         "varying vec2 texCoord;\n"
         "void main() {\n"
-        "    gl_Position = projMatUnif * vec4(posAttr, 1.0, 1.0);\n"
+        "    gl_Position = projMatUnif * vec4((posAttr + posUnif), 1.0, 1.0);\n"
         "    color = colorAttr;\n"
         "    texCoord = texCoordAttr;\n"
         "}"
@@ -36,6 +38,7 @@ namespace lux {
         // Load shader and get variable positions
         shader = std::make_shared<Shader>(VS, FS);
         projMatUnif = shader->getUniform("projMatUnif");
+        posUnif = shader->getUniform("posUnif");
         GLuint posAttr = shader->getAttribute("posAttr");
         GLuint colorAttr = shader->getAttribute("colorAttr");
         GLuint texCoordAttr = shader->getAttribute("texCoordAttr");
@@ -67,6 +70,8 @@ namespace lux {
         glViewport(0, 0, size.x, size.y);
         glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_SCISSOR_TEST);
+        glDisable(GL_DEPTH_TEST);
 
         // Load arrays and buffers
         glBindVertexArray(VAO);
@@ -82,9 +87,32 @@ namespace lux {
     }
 
     void OpenGLDrawer::drawListRecurse(const std::shared_ptr<DrawList>& drawList, const Point& position, const Size& viewArea) {
+        // Apply scissor and update position
+        glScissor(position.x, position.y, viewArea.x, viewArea.y);
+        glUniform2f(posUnif, position.x, position.y);
+
         // Draw each element
         const auto& elemList = drawList->getElements();
         for (const auto& elem : elemList) {
+            // If recursive draw
+            if (elem.drawList) {
+                // Calculate arguments
+                auto newPos = position + elem.drawListPos;
+                auto newViewArea = viewArea - elem.drawListPos;
+                auto recurseViewArea = elem.drawList->getDrawArea();
+                newViewArea.x = std::min<int>(newViewArea.x, recurseViewArea.x);
+                newViewArea.y = std::min<int>(newViewArea.y, recurseViewArea.y);
+                if (newViewArea.x <= 0 || newViewArea.y <= 0) { continue; }
+
+                // Draw
+                drawListRecurse(elem.drawList, newPos, newViewArea);
+
+                // Reset scissor and uniform then continue
+                glScissor(position.x, position.y, viewArea.x, viewArea.y);
+                glUniform2f(posUnif, position.x, position.y);
+                continue;
+            }
+
             // Don't render if empty
             if (elem.indices.empty()) { continue; }
 

@@ -27,6 +27,7 @@ namespace lux {
         GLuint VBO;
         GLuint EBO;
         GLuint projMatUnif;
+        GLuint posUnif;
         int VBOCapacity = 0;
         int EBOCapacity = 0;
 

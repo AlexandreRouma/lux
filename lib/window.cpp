@@ -45,7 +45,6 @@ namespace lux {
 
     void Window::setTitle(const std::string& title) {
         this->title = title;
-        markForRedraw();
     }
 
     const Point& Window::getPosition() {
@@ -64,6 +63,7 @@ namespace lux {
     void Window::setRootWidget(const std::shared_ptr<Widget>& rootWidget) {
         this->rootWidget = rootWidget;
         rootWidget->computeSize();
+        markForRedraw();
     }
 
     void Window::gainFocus() {
@@ -203,31 +203,17 @@ namespace lux {
         drawList->drawLine(lux::Point(clsBtnX, 9), lux::Point(clsBtnX+9, 18), textColor);
         drawList->drawLine(lux::Point(clsBtnX, 18), lux::Point(clsBtnX+9, 9), textColor);
 
-        // Border
-        // drawList->drawRect(lux::Point(0, 0), size - lux::Point(10, 10), barColor);
-
-        // drawList->drawText(lux::Point(9, 20), lux::Color(1.0, 1.0, 1.0), title);
-
-        // srand(69);
-        // for (int i = 0; i < 1000; i++) {
-        //     if (i && i%5 == 0) drawList->newElement();
-        //     auto p1 = Point(rand() % size.x, rand() % size.y);
-        //     auto p2 = Point(rand() % size.x, rand() % size.y);
-        //     drawList->drawRect(p1, p2, Color(1.0, 1.0, 1.0));
-        // }
-
-
-        // // Draw widget
-        // if (rootWidget) { drawList->drawList(Point(5, 31 + 5), rootWidget->getDrawList()); }
+        // Draw widget
+        if (rootWidget) { drawList->drawList(Point(5, 31 + 5), rootWidget->getDrawList()); }
     }
 
     void Window::updateButtonPositions() {
         // TODO: They overlap...
         minimizeP1 = Point(size.x - 138, 0);
         minimizeP2 = minimizeP1 + Point(46, 30);
-        maximizeP1 = Point(size.x - 93, 0);;
+        maximizeP1 = Point(size.x - 93, 0);
         maximizeP2 = maximizeP1 + Point(46, 30);
         closeP1 = Point(size.x - 47, 0);
-        closeP2 = closeP1 + Point(46, 30);;
+        closeP2 = closeP1 + Point(46, 30);
     }
 }
