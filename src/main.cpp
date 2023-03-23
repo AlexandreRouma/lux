@@ -11,7 +11,7 @@
 class MainWindow : public lux::Window {
 public:
     MainWindow() : lux::Window(lux::Point(1280, 720), "Hello Lux!", lux::Point(500, 300)) {
-        btn = std::make_shared<lux::Button>(this, "Refresh");
+        btn = std::make_shared<lux::Button>(this, "Hello World!", lux::Size(lux::FIT_CONTAINER, lux::FIT_CONTENT));
         setRootWidget(btn);
     }
 

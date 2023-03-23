@@ -106,15 +106,40 @@ namespace lux {
         elem->addTri(tr, bl, br);
     }
 
-    void DrawList::drawText(const Point& p, const Color& color, const std::string& text) {
+    void DrawList::drawText(const Pointf& p, const Color& color, const std::string& text, HRef href, VRef vref) {
         newElement();
         elem->texId = fontTexId;
-        Vec2f pos = Vec2f((float)p.x - 0.5f, (float)p.y - 0.5f);
+        float fontHeight = font->getHeight();
+        Vec2f orig = p;
+
+        // Calculate X origin
+        if (href == HREF_LEFT) {
+            orig.x = p.x;
+        }
+        else if (href == HREF_CENTER) {
+            orig.x = p.x - font->calcTextWidth(text)/2.0f;
+        }
+        else if (href == HREF_RIGHT) {
+            orig.x = p.x - font->calcTextWidth(text);
+        }
+
+        // Calculate Y origin
+        if (vref == VREF_TOP) {
+            orig.y = p.y + font->ascent - font->descent;
+        }
+        else if (vref = VREF_CENTER) {
+            orig.y = p.y + (font->ascent - font->descent)/2.0f;
+        }
+        else if (vref == VREF_BOTTOM) {
+            orig.y = p.y;
+        }
+        
+        Vec2f pos = orig - Vec2f(0.5f, 0.5f);
         for (char c : text) {
             // If new line, go to next line
             if (c == '\n') {
-                pos.x = (float)p.x - 0.5f;
-                pos.y += font->getHeight();
+                pos.x = orig.x;
+                pos.y += fontHeight;
                 continue;
             }
 

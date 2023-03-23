@@ -1,6 +1,7 @@
 #include "window.h"
 #include "backend.h"
 #include "flog.h"
+#include "lux.h"
 
 namespace lux {
     Window::Window(const Size& size, const std::string& title, const Point& position) : Widget(NULL) {
@@ -209,7 +210,13 @@ namespace lux {
             "its wings are too small to get its fat little body off the ground.\n"
             "The bee of course, flies anyway, because bees don't care what humans think is impossible.\n"
         ;
-        drawList->drawText(Vec2(10, 100), lux::Color(1,1,1), testStr);
+        drawList->drawText(Point(10, 100), lux::Color(1,1,1), testStr);
+
+        drawList->drawLine(Point(10, 300), Point(400, 300), Color(1,1,0));
+        drawList->drawLine(Point(10, 300 - font->descent), Point(400, 300 - font->descent), Color(0,1,1));
+        drawList->drawLine(Point(10, 300 - font->ascent), Point(400, 300 - font->ascent), Color(1,0,1));
+        drawList->drawText(Point(10, 300), lux::Color(1,1,1), "Hello World!");
+        
 
         // Draw widget
         if (rootWidget) { drawList->drawList(Point(5, 31 + 5), rootWidget->getDrawList()); }

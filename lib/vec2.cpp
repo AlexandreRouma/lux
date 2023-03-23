@@ -7,6 +7,11 @@ namespace lux {
         y = 0;
     }
 
+    Vec2::Vec2(Vec2f vec2f) {
+        x = vec2f.x;
+        y = vec2f.y;
+    }
+
     Vec2::Vec2(int x, int y) {
         this->x = x;
         this->y = y;
@@ -31,6 +36,11 @@ namespace lux {
     Vec2f::Vec2f() {
         x = 0.0f;
         y = 0.0f;
+    }
+
+    Vec2f::Vec2f(Vec2 vec2) {
+        x = vec2.x;
+        y = vec2.y;
     }
 
     Vec2f::Vec2f(float x, float y) {

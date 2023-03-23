@@ -6,7 +6,7 @@
 namespace lux {
     Button::Button(Widget* parent, const std::string& label, const Size& size) : Widget(parent) {
         this->label = label;
-        labelSize = Size(font->calcTextWidth(label), font->getHeight());
+        labelSize = Size(font->calcTextWidth(label), font->ascent);
         setSize(size);
     }
 
@@ -26,6 +26,6 @@ namespace lux {
         drawList->fillRect(lux::Point(0, 0), size - Size(1, 1), barColor);
         drawList->drawRect(lux::Point(0, 0), size - Size(1, 1), borderColor);
         
-        drawList->drawText(Size(7, 7 + labelSize.y), Color(1,1,1), label);
+        drawList->drawText((Sizef)size / 2.0f, Color(1,1,1), label, HREF_CENTER, VREF_CENTER);
     }
 }

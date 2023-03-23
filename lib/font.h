@@ -19,8 +19,12 @@ namespace lux {
 
         stbtt_bakedchar* bcs = NULL;
 
+        float ascent, descent, lineGap;
+
     private:
+        uint8_t* fontData = NULL;
         uint8_t* bitmap = NULL;
+        stbtt_fontinfo fi;
         int height;
         Size bitmapSize;
     };

@@ -1,8 +1,11 @@
 #pragma once
 
 namespace lux {
+    struct Vec2f;
+
     struct Vec2 {
         Vec2();
+        Vec2(Vec2f vec2f);
         Vec2(int x, int y);
 
         Vec2 operator+(const Vec2& other) const;
@@ -15,6 +18,7 @@ namespace lux {
 
     struct Vec2f {
         Vec2f();
+        Vec2f(Vec2 vec2);
         Vec2f(float x, float y);
 
         float norm();
@@ -31,4 +35,6 @@ namespace lux {
 
     typedef Vec2 Point;
     typedef Vec2 Size;
+    typedef Vec2f Pointf;
+    typedef Vec2f Sizef;
 }

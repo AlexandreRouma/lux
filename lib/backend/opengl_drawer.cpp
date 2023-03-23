@@ -153,7 +153,7 @@ namespace lux {
                 flog::debug("Reallocating vertex buffer to {}", vertCount);
             }
             else {
-                glBufferSubData(GL_ARRAY_BUFFER, NULL, vertCount * sizeof(VertexAttrib), elem.vertices.data());
+                glBufferSubData(GL_ARRAY_BUFFER, 0, vertCount * sizeof(VertexAttrib), elem.vertices.data());
             }
             if (indCount > EBOCapacity) {
                 glBufferData(GL_ELEMENT_ARRAY_BUFFER, indCount * sizeof(int), elem.indices.data(), GL_DYNAMIC_DRAW);
@@ -161,7 +161,7 @@ namespace lux {
                 flog::debug("Reallocating index buffer to {}", indCount);
             }
             else {
-                glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, NULL, indCount * sizeof(int), elem.indices.data());
+                glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indCount * sizeof(int), elem.indices.data());
             }
 
             // Draw indices

@@ -189,7 +189,7 @@ namespace lux::backend {
                     win.luxWin->mouseUp(mpos);
                 }
 
-                // Detect mouse mouvenet
+                // Detect mouse mouvement
                 if ((mouseIn || mouseDown) && win.mpos != mpos) {
                     win.mpos = mpos;
                     win.luxWin->mouseMove(mpos);

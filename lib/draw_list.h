@@ -28,6 +28,18 @@ namespace lux {
         std::vector<int> indices;
     };
 
+    enum HRef {
+        HREF_LEFT,
+        HREF_CENTER,
+        HREF_RIGHT
+    };
+
+    enum VRef {
+        VREF_TOP,
+        VREF_CENTER,
+        VREF_BOTTOM
+    };
+
     class DrawList {
     public:
         DrawList();
@@ -40,7 +52,7 @@ namespace lux {
         void drawLine(const Point& p1, const Point& p2, const Color& color, int width = 1);
         void drawRect(const Point& p1, const Point& p2, const Color& color);
         void fillRect(const Point& p1, const Point& p2, const Color& color);
-        void drawText(const Point& p, const Color& color, const std::string& text);
+        void drawText(const Pointf& p, const Color& color, const std::string& text, HRef href = HREF_LEFT, VRef vref = VREF_TOP);
         void drawList(const Point& p, const std::shared_ptr<DrawList>& list);
 
         const std::vector<DrawElement>& getElements();

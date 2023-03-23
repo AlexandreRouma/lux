@@ -17,7 +17,7 @@ namespace lux {
         file.seekg(file.beg);
 
         // Read in font data
-        uint8_t* fontData = new uint8_t[fontLen];
+        fontData = new uint8_t[fontLen];
         file.read((char*)fontData, fontLen);
         file.close();
 
@@ -38,13 +38,21 @@ namespace lux {
             }
         }
         delete[] tmpBmp;
-        flog::debug("test: {}", ret);
+        
+        // Get font info
+        stbtt_InitFont(&fi, fontData, 0);
+        int _ascent, _descent, _lineGap;
+        stbtt_GetFontVMetrics(&fi, &_ascent, &_descent, &_lineGap);
+        float sf = stbtt_ScaleForPixelHeight(&fi, size);
+        ascent = (float)_ascent * sf;
+        descent = -(float)_descent * sf;
+        lineGap = (float)_lineGap * sf;
 
-        // free font data
-        delete[] fontData;
+        flog::warn("Font: {}, {}, {}", ascent, descent, lineGap);
     }
 
     Font::~Font() {
+        if (fontData) { delete[] fontData; }
         if (bitmap) { delete[] bitmap; }
         if (bcs) { delete[] bcs; }
     }
@@ -66,6 +74,7 @@ namespace lux {
         for (char c : str) {
             len += bcs[c].xadvance;
         }
+        // TODO: Should not count inter-character space for last char, use fontinfo
         return len;
     }
 }
