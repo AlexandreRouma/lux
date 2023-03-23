@@ -1,4 +1,6 @@
 #include "draw_list.h"
+#include "vendor/stb/stb_truetype.h"
+#include "lux.h"
 
 namespace lux {
     int DrawElement::addVertex(const Vec2f& pos, const Color& color, const Vec2f& texCoord) {
@@ -104,9 +106,36 @@ namespace lux {
         elem->addTri(tr, bl, br);
     }
 
-    // void DrawList::drawText(const Point& p, const Color& color, const std::string& text) {
-        
-    // }
+    void DrawList::drawText(const Point& p, const Color& color, const std::string& text) {
+        newElement();
+        elem->texId = fontTexId;
+        Vec2f pos = Vec2f((float)p.x - 0.5f, (float)p.y - 0.5f);
+        for (char c : text) {
+            // If new line, go to next line
+            if (c == '\n') {
+                pos.x = (float)p.x - 0.5f;
+                pos.y += font->getHeight();
+                continue;
+            }
+
+            // Get info
+            stbtt_bakedchar bc = font->bcs[c];
+
+            // Draw quad
+            Vec2f cpos = pos + Vec2f(bc.xoff, bc.yoff);
+            Vec2f end(cpos.x + (float)(bc.x1 - bc.x0), cpos.y + (float)(bc.y1 - bc.y0));
+            int tl = elem->addVertex(cpos, color, Vec2f(bc.x0, bc.y0) * (1.0f/511.0f));
+            int tr = elem->addVertex(Vec2f(end.x, cpos.y), color, Vec2f(bc.x1, bc.y0) * (1.0f/511.0f));
+            int bl = elem->addVertex(Vec2f(cpos.x, end.y), color, Vec2f(bc.x0, bc.y1) * (1.0f/511.0f));
+            int br = elem->addVertex(end, color, Vec2f(bc.x1, bc.y1) * (1.0f/511.0f));
+            elem->addTri(tl, tr, bl);
+            elem->addTri(tr, bl, br);
+                
+            // Increment X pos
+            pos.x += bc.xadvance;
+        }
+        newElement();
+    }
 
     void DrawList::drawList(const Point& p, const std::shared_ptr<DrawList>& list) {
         newElement();

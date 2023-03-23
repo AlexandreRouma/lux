@@ -21,6 +21,7 @@ namespace lux {
         void addTri(int a, int b, int c);
         bool empty();
 
+        int texId = 0;
         Point drawListPos;
         std::shared_ptr<DrawList> drawList;
         std::vector<VertexAttrib> vertices;
@@ -39,7 +40,7 @@ namespace lux {
         void drawLine(const Point& p1, const Point& p2, const Color& color, int width = 1);
         void drawRect(const Point& p1, const Point& p2, const Color& color);
         void fillRect(const Point& p1, const Point& p2, const Color& color);
-        //void drawText(const Point& p, const Color& color, const std::string& text);
+        void drawText(const Point& p, const Color& color, const std::string& text);
         void drawList(const Point& p, const std::shared_ptr<DrawList>& list);
 
         const std::vector<DrawElement>& getElements();

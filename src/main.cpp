@@ -6,11 +6,12 @@
 #include <stdexcept>
 
 #include "widgets/button.h"
+#include "widgets/div.h"
 
 class MainWindow : public lux::Window {
 public:
     MainWindow() : lux::Window(lux::Point(1280, 720), "Hello Lux!", lux::Point(500, 300)) {
-        btn = std::make_shared<lux::Button>(this, "Click Me!");
+        btn = std::make_shared<lux::Button>(this, "Refresh");
         setRootWidget(btn);
     }
 
@@ -20,6 +21,7 @@ private:
 
 int main() {
     try {
+        lux::font = std::make_shared<lux::Font>("../res/Roboto-Medium.ttf", 16);
         MainWindow mainWindow;
         mainWindow.show();
         lux::run();

@@ -203,6 +203,14 @@ namespace lux {
         drawList->drawLine(lux::Point(clsBtnX, 9), lux::Point(clsBtnX+9, 18), textColor);
         drawList->drawLine(lux::Point(clsBtnX, 18), lux::Point(clsBtnX+9, 9), textColor);
 
+        const char* testStr =
+            "According to all known laws of aviation,\n"
+            "there is no way a bee should be able to fly,\n"
+            "its wings are too small to get its fat little body off the ground.\n"
+            "The bee of course, flies anyway, because bees don't care what humans think is impossible.\n"
+        ;
+        drawList->drawText(Vec2(10, 100), lux::Color(1,1,1), testStr);
+
         // Draw widget
         if (rootWidget) { drawList->drawList(Point(5, 31 + 5), rootWidget->getDrawList()); }
     }

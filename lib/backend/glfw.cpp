@@ -210,7 +210,7 @@ namespace lux::backend {
             }
 
             // Configure
-            glfwSwapInterval(true);
+            glfwSwapInterval(1);
 
             // Swap buffers for each window
             for (auto& win : windows) {

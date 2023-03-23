@@ -14,5 +14,6 @@ namespace lux {
         void draw();
 
         std::string label;
+        Size labelSize;
     };
 }

@@ -24,10 +24,11 @@ namespace lux {
 
     const char* FS =
         "#version 120\n"
+        "uniform sampler2D sampler;\n"
         "varying vec4 color;\n"
         "varying vec2 texCoord;\n"
         "void main() {\n"
-        "    gl_FragColor = color;\n"
+        "    gl_FragColor = texture2D(sampler, texCoord) * color;\n"
         "}"
     ;
 
@@ -39,6 +40,7 @@ namespace lux {
         shader = std::make_shared<Shader>(VS, FS);
         projMatUnif = shader->getUniform("projMatUnif");
         posUnif = shader->getUniform("posUnif");
+        samplerUnif = shader->getUniform("sampler");
         GLuint posAttr = shader->getAttribute("posAttr");
         GLuint colorAttr = shader->getAttribute("colorAttr");
         GLuint texCoordAttr = shader->getAttribute("texCoordAttr");
@@ -58,6 +60,19 @@ namespace lux {
         glEnableVertexAttribArray(posAttr);
         glEnableVertexAttribArray(colorAttr);
         glEnableVertexAttribArray(texCoordAttr);
+
+        // Load null texutre
+        uint32_t white = 0xFFFFFFFF;
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &white);
+
+        // Load font texture
+        glActiveTexture(GL_TEXTURE0);
+        glGenTextures(1, &fontTexId);
+        glBindTexture(GL_TEXTURE_2D, fontTexId);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, font->getBitmap());
+        glGenerateMipmap(GL_TEXTURE_2D);
     }
 
     void OpenGLDrawer::setSize(const Size& size) {
@@ -70,8 +85,10 @@ namespace lux {
         glViewport(0, 0, size.x, size.y);
         glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_SCISSOR_TEST);
+        //glEnable(GL_SCISSOR_TEST);
         glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // Load arrays and buffers
         glBindVertexArray(VAO);
@@ -81,6 +98,10 @@ namespace lux {
         // Enable shader and load uniforms
         shader->use();
         glUniformMatrix4fv(projMatUnif, 1, GL_FALSE, glm::value_ptr(projMat));
+        glUniform1i(samplerUnif, 0);
+
+        // Force texutre rebind (TODO: might not be required)
+        currentTexId = -1;
 
         // Draw recursively
         drawListRecurse(drawList, Point(0, 0), size);
@@ -94,6 +115,13 @@ namespace lux {
         // Draw each element
         const auto& elemList = drawList->getElements();
         for (const auto& elem : elemList) {
+            // Bind texture if needed
+            if (currentTexId != elem.texId) {
+                currentTexId = elem.texId;
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, (GLuint)elem.texId);
+            }
+
             // If recursive draw
             if (elem.drawList) {
                 // Calculate arguments

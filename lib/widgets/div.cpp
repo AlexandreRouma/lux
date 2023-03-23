@@ -35,7 +35,7 @@ namespace lux {
         drawList->clear();
         drawList->setDrawArea(size);
 
-        drawList->fillRect(lux::Point(0, 0), size, color);
+        drawList->fillRect(lux::Point(0, 0), size - Size(1, 1), color);
         if (child) { drawList->drawList(lux::Point(5, 5), child->getDrawList()); }
     }
 }

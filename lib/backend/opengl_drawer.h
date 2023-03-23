@@ -28,8 +28,10 @@ namespace lux {
         GLuint EBO;
         GLuint projMatUnif;
         GLuint posUnif;
+        GLuint samplerUnif;
         int VBOCapacity = 0;
         int EBOCapacity = 0;
+        int currentTexId = -1;
 
         glm::mat4 projMat;
     };
