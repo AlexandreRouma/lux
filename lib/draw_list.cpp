@@ -149,10 +149,10 @@ namespace lux {
             // Draw quad
             Vec2f cpos = pos + Vec2f(bc.xoff, bc.yoff);
             Vec2f end(cpos.x + (float)(bc.x1 - bc.x0), cpos.y + (float)(bc.y1 - bc.y0));
-            int tl = elem->addVertex(cpos, color, Vec2f(bc.x0, bc.y0) * (1.0f/511.0f));
-            int tr = elem->addVertex(Vec2f(end.x, cpos.y), color, Vec2f(bc.x1, bc.y0) * (1.0f/511.0f));
-            int bl = elem->addVertex(Vec2f(cpos.x, end.y), color, Vec2f(bc.x0, bc.y1) * (1.0f/511.0f));
-            int br = elem->addVertex(end, color, Vec2f(bc.x1, bc.y1) * (1.0f/511.0f));
+            int tl = elem->addVertex(cpos, color, Vec2f(bc.x0, bc.y0) * (1.0f/512.0f));
+            int tr = elem->addVertex(Vec2f(end.x, cpos.y), color, Vec2f(bc.x1, bc.y0) * (1.0f/512.0f));
+            int bl = elem->addVertex(Vec2f(cpos.x, end.y), color, Vec2f(bc.x0, bc.y1) * (1.0f/512.0f));
+            int br = elem->addVertex(end, color, Vec2f(bc.x1, bc.y1) * (1.0f/512.0f));
             elem->addTri(tl, tr, bl);
             elem->addTri(tr, bl, br);
                 

@@ -31,7 +31,7 @@ namespace lux::backend {
 
         // Enable 8x antialiasing
         glfwWindowHint(GLFW_SAMPLES, 8);
-        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+        //glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
         // Select OpenGL version
 #ifdef __APPLE__

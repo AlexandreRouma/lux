@@ -13,7 +13,7 @@ namespace lux {
     Button::~Button() {}
 
     Size Button::getFitContentSize() {
-        return labelSize + Size(14, 14);
+        return labelSize + Size(10, 10);
     }
 
     void Button::draw() {
@@ -24,7 +24,6 @@ namespace lux {
         auto borderColor = lux::Color(30.0/255.0, 30.0/255.0, 30.0/255.0);
 
         drawList->fillRect(lux::Point(0, 0), size - Size(1, 1), barColor);
-        drawList->drawRect(lux::Point(0, 0), size - Size(1, 1), borderColor);
         
         drawList->drawText((Sizef)size / 2.0f, Color(1,1,1), label, HREF_CENTER, VREF_CENTER);
     }

@@ -175,6 +175,7 @@ namespace lux {
         }
 
         drawList->fillRect(lux::Point(0, 0), lux::Point(size.x - 1, 30), barColor);
+        drawList->drawText(lux::Point(10, 16), textColor, title, HREF_LEFT, VREF_CENTER);
 
         int minBtnX = size.x - 120;
         int maxBtnX = size.x - 74;
@@ -212,10 +213,6 @@ namespace lux {
         ;
         drawList->drawText(Point(10, 100), lux::Color(1,1,1), testStr);
 
-        drawList->drawLine(Point(10, 300), Point(400, 300), Color(1,1,0));
-        drawList->drawLine(Point(10, 300 - font->descent), Point(400, 300 - font->descent), Color(0,1,1));
-        drawList->drawLine(Point(10, 300 - font->ascent), Point(400, 300 - font->ascent), Color(1,0,1));
-        drawList->drawText(Point(10, 300), lux::Color(1,1,1), "Hello World!");
         
 
         // Draw widget

@@ -10,7 +10,7 @@
 
 class MainWindow : public lux::Window {
 public:
-    MainWindow() : lux::Window(lux::Point(1280, 720), "Hello Lux!", lux::Point(500, 300)) {
+    MainWindow() : lux::Window(lux::Point(800, 480), "Hello Lux!", lux::Point(500, 300)) {
         btn = std::make_shared<lux::Button>(this, "Hello World!", lux::Size(lux::FIT_CONTAINER, lux::FIT_CONTENT));
         setRootWidget(btn);
     }
@@ -21,7 +21,7 @@ private:
 
 int main() {
     try {
-        lux::font = std::make_shared<lux::Font>("../res/Roboto-Medium.ttf", 16);
+        lux::font = std::make_shared<lux::Font>("../res/Roboto-Medium.ttf", 16); // ../res/Roboto-Medium.ttf
         MainWindow mainWindow;
         mainWindow.show();
         lux::run();
